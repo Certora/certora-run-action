@@ -9,6 +9,10 @@ on:
 
 jobs:
   test:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
     uses: ./workflow.yml@feat/initial-setup
     secrets: inherit
     with:
