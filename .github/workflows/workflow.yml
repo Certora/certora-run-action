@@ -271,7 +271,7 @@ jobs:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 
       - name: Add GH Status
-        if: ${{ always() && inputs.add-status && steps.certora-run.outputs.total_jobs > 0 }}
+        if: always()
         run: |
           curl -L \
             -X POST \
@@ -292,7 +292,7 @@ jobs:
           path: /tmp/certora-logs/*
 
       - name: Add Summary To Report
-        if: ${{ always() && steps.upload-logs.outputs.artifact-url }}
+        if: always()
         run: |
           echo "### Certora Run Summary" >> $REPORT_FILE
           echo "- Started ${{ steps.certora-run.outputs.total_jobs }} jobs" >> $GITHUB_ENV
@@ -300,7 +300,7 @@ jobs:
           echo "[Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $GITHUB_ENV
 
       - name: Add report comment
-        if: ${{ always() && steps.upload-logs.outputs.artifact-url }}
+        if: always()
         uses: mshick/add-pr-comment@v2
         with:
           message-path: $REPORT_FILE
