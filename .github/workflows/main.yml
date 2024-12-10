@@ -13,7 +13,7 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
-    uses: ./.github/workflows/workflow.yml@feat/initial-setup
+    uses: ./.github/workflows/workflow.yml@main
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CERTORAKEY: ${{ secrets.CERTORAKEY }}
