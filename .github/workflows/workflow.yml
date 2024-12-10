@@ -241,10 +241,10 @@ jobs:
           # Wait for all jobs to finish and mark if any failed
           final_ret=0
           failed_jobs=0
-          for i in ${!pids[@]}; do
+          for i in "${!pids[@]}"; do
             ret=0
             wait "${pids[i]}" || ret=$?
-            if [ $ret -ne 0 ]; then
+            if [[ $ret -ne 0 ]]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
               final_ret=$ret
@@ -263,7 +263,7 @@ jobs:
           # Remove empty log files
           find "$LOG_DIR" -type f -empty -delete
 
-          if [ $ret -ne 0 ]; then
+          if [[ $ret -ne 0 ]]; then
             echo "Some configurations failed! Please check the logs."
             exit $final_ret
           fi
@@ -297,8 +297,9 @@ jobs:
         run: |
           echo "### Certora Run Summary" >> $REPORT_FILE
           echo "- Started ${{ steps.certora-run.outputs.total_jobs }} jobs" >> $REPORT_FILE
-          echo "- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed\n" >> $REPORT_FILE
-          echo "[Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $REPORT_FILE
+          echo "- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed" >> $REPORT_FILE
+          echo "" >> $REPORT_FILE
+          echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $REPORT_FILE
 
       - name: Add report comment
         if: always()
