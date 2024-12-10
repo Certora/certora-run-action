@@ -11,3 +11,4 @@ jobs:
       configurations: |-
         tests/conf1.conf
         tests/conf2.conf
+      solc-versions: 0.7.6 0.7.8

@@ -29,6 +29,20 @@ on:
             certConfigs/config2.conf
             certConfigs/config3.conf
           ```
+      solc-versions:
+        required: true
+        type: string
+        description: |-
+          List of Solidity versions to use for the `certoraRun` command.
+
+          Example:
+
+          ```yaml
+          solc-versions: |-
+            0.5.16
+            0.6.12
+            0.7.6
+          ```
       use-alpha:
         required: false
         type: boolean
@@ -42,8 +56,9 @@ on:
     secrets:
       certora-key:
         required: true
-      github-token:
-        required: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   certora_run:
@@ -69,6 +84,8 @@ jobs:
             COMMIT_SHA="${{ github.event.review.commit_id }}"
           elif [[ "${{ github.event_name }}" == "pull_request_review_comment" ]]; then
             COMMIT_SHA="${{ github.event.comment.commit_id }}"
+          else
+            COMMIT_SHA="$(git rev-parse HEAD)"
           fi
           echo "COMMIT_SHA=${COMMIT_SHA:0:12}" >> $GITHUB_ENV
 
@@ -94,6 +111,33 @@ jobs:
         env:
           CERT_CLI_VERSION: ${{ inputs.cli_version }}
 
+      - name: Cache Solidity Binaries
+        id: solc-cache
+        uses: actions/cache@v4
+        with:
+          path: /opt/solc-bin
+          key: solc-bin-${{ inputs.solc-versions }}
+
+      - name: Download Solidity Binaries
+        if: steps.solc-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /opt/solc-bin
+          VERSIONS="${{ inputs.solc-versions }}"
+          for version in $VERSIONS; do
+            version="${version#v}"
+            if [ ! -f "/opt/solc-bin/solc$version" ]; then
+              BIN_LINK="$(curl -sH "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/ethereum/solidity/releases/tags/v${version} | jq -r '.assets[] | select(.name == "solc-static-linux") | .url')"
+              curl -L \
+                -H "Accept: application/octet-stream" \
+                -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                "${BIN_LINK}" -o "/opt/solc-bin/solc$version"
+            fi
+          done
+          ls -1 /opt/solc-bin/
+
+      - name: Add Solidity to Github Path
+        run: echo "/opt/solc-bin" >> $GITHUB_PATH
+
       - name: Sanitize confugurations
         run: |
           CONFIGURATIONS="${{ inputs.configurations }}"
@@ -103,3 +147,13 @@ jobs:
             jq 'del(.wait_for_results)' $conf > $tmp_conf
             mv $tmp_conf $conf
           done
+
+      - name: Run Certora
+        run: |
+          CONFIGURATIONS="${{ inputs.configurations }}"
+          for conf in $CONFIGURATIONS; do
+            echo "Running $conf"
+            uvx --from "$CERT_CLI_PACKAGE" certoraRun $conf --msg "${MESSAGE_SUFFIX}" --group_id "${GROUP_ID}"
+          done
+        env:
+          CERTORAKEY: ${{ secrets.certora-key }}
