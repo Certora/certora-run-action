@@ -1,12 +1,17 @@
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   test:
-    uses: ./workflow.yml
+    uses: ./workflow.yml@feat/initial-setup
     secrets: inherit
     with:
-      version: 7.0.0
       use-beta: true
       configurations: |-
         tests/conf1.conf
