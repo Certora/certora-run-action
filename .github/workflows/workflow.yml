@@ -200,6 +200,7 @@ jobs:
       - name: Run Certora
         id: certora-run
         run: |
+          set -ex
           CONFIGURATIONS="${{ inputs.configurations }}"
           MAX_MSG_LEN=254
           SUFFIX_LEN=${#MESSAGE_SUFFIX}
