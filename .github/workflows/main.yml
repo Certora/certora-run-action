@@ -15,7 +15,6 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/workflow.yml
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CERTORAKEY: ${{ secrets.CERTORAKEY }}
     with:
       use-beta: true

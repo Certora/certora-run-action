@@ -73,8 +73,6 @@ on:
     secrets:
       CERTORAKEY:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
