@@ -1,0 +1,13 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./workflow.yml
+    secrets: inherit
+    with:
+      version: 7.0.0
+      use-beta: true
+      configurations: |-
+        tests/conf1.conf
+        tests/conf2.conf

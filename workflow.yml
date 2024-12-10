@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-workflow.json
+name: Reusable Workflow
+on:
+  workflow_call:
+    inputs:
+      cli-version:
+        required: false
+        type: string
+        description: |-
+          The version of the `certora-cli` to use. If not specified, the latest version
+          will be used.
+
+          Example:
+
+          ```yaml
+          cli-version: 7.0.0
+          ```
+      configurations:
+        required: true
+        type: string
+        description: |-
+          List of paths to configuration files to use for the `certoraRun` command.
+
+          Example:
+
+          ```yaml
+          configurations: |-
+            certConfigs/config1.conf
+            certConfigs/config2.conf
+            certConfigs/config3.conf
+          ```
+      use-alpha:
+        required: false
+        type: boolean
+        description: |-
+          Whether to use the alpha version of the `certora-cli`.
+      use-beta:
+        required: false
+        type: boolean
+        description: |-
+          Whether to use the beta version of the `certora-cli`.
+    secrets:
+      certora-key:
+        required: true
+      github-token:
+        required: true
+
+jobs:
+  certora_run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/initial-setup
+      - name: Fetch Relevant Commit SHA for the Event
+        run: |
+          COMMIT_SHA=""
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            COMMIT_SHA="${{ github.sha }}"
+          elif [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            COMMIT_SHA="${{ github.event.workflow_run.head_commit.id }}"
+          elif [[ "${{ github.event_name }}" == "commit_comment" ]]; then
+            COMMIT_SHA="${{ github.event.comment.commit_id }}"
+          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            COMMIT_SHA="${{ github.event.comment.commit_id }}"
+          elif [[ "${{ github.event_name }}" == "pull_request_review" ]]; then
+            COMMIT_SHA="${{ github.event.review.commit_id }}"
+          elif [[ "${{ github.event_name }}" == "pull_request_review_comment" ]]; then
+            COMMIT_SHA="${{ github.event.comment.commit_id }}"
+          fi
+          echo "COMMIT_SHA=${COMMIT_SHA:0:12}" >> $GITHUB_ENV
+
+      - name: Group ID and Message
+        run: |
+          echo "MESSAGE_SUFFIX=${{ github.repository }}@${COMMIT_SHA}" >> $GITHUB_ENV
+          echo "GROUP_ID=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install certora-cli
+        run: |
+          CERT_CLI_PACKAGE="certora-cli"
+            if [ '${{ inputs.use_alpha }}' == 'true' ]; then
+              CERT_CLI_PACKAGE="certora-cli-alpha"
+            elif [ '${{ inputs.use_beta }}' == 'true' ]; then
+              CERT_CLI_PACKAGE="certora-cli-beta"
+            fi
+          CERT_CLI_PACKAGE="${CERT_CLI_PACKAGE}${CERT_CLI_VERSION:+==$CERT_CLI_VERSION}"
+          echo "CERT_CLI_PACKAGE=$CERT_CLI_PACKAGE" >> $GITHUB_ENV
+          uv tool install "$CERT_CLI_PACKAGE"
+        env:
+          CERT_CLI_VERSION: ${{ inputs.cli_version }}
+
+      - name: Sanitize confugurations
+        run: |
+          CONFIGURATIONS="${{ inputs.configurations }}"
+          for conf in $CONFIGURATIONS; do
+            echo "Sanitizing $conf"
+            tmp_conf=$(mktemp)
+            jq 'del(.wait_for_results)' $conf > $tmp_conf
+            mv $tmp_conf $conf
+          done
