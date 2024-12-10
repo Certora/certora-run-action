@@ -210,6 +210,7 @@ jobs:
           mkdir -p "$LOG_DIR"
 
           pids=()
+          configs=()
           for conf in $CONFIGURATIONS; do
             if [[ ${#conf} -gt $MAX_MSG_LEN ]]; then
               MSG_CONF="${conf: -$REMAINING_LEN}"
@@ -230,9 +231,12 @@ jobs:
               --send_only \
               --wait_for_results none >"$LOG_FILE" 2>&1 &
             pids+=($!)
+            configs+=($conf)
 
             ((jobs++)) || true
           done
+
+          echo "My pids (length ${#pids[@]})): ${pids[@]}"
 
           echo "## Certora Run Started" > "$REPORT_FILE"
           echo "| Config | Status | Link |" >> "$REPORT_FILE"
@@ -241,18 +245,18 @@ jobs:
           # Wait for all jobs to finish and mark if any failed
           final_ret=0
           failed_jobs=0
-          for i in $(seq 0 $jobs); do
+          for i in "${!pids[@]}"; do
             ret=0
             wait "${pids[i]}" || ret=$?
             if [[ $ret -ne 0 ]]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
               final_ret=$ret
-              echo "| ${CONFIGURATIONS[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
+              echo "| ${configs[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
             else
-              LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
+              LOG_FILE="$(printf "%s" "${LOG_DIR}${configs[i]}.log" | tr -s '/')"
               LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_FILE" || true)
-              echo "| ${CONFIGURATIONS[i]} | Submited | [link]($LINK) |" >> "$REPORT_FILE"
+              echo "| ${configs[i]} | Submited | [link]($LINK) |" >> "$REPORT_FILE"
             fi
           done
 
