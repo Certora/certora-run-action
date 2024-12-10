@@ -13,7 +13,7 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
-    uses: ./.github/workflows/workflow.yml
+    uses: ./.github/workflows/certora_run.yml
     secrets:
       CERTORAKEY: ${{ secrets.CERTORAKEY }}
     with:
@@ -33,7 +33,7 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
-    uses: ./.github/workflows/workflow.yml
+    uses: ./.github/workflows/certora_run.yml
     secrets:
       CERTORAKEY: ${{ secrets.CERTORAKEY }}
     with:
@@ -42,3 +42,4 @@ jobs:
         tests/conf-good.conf
         tests/conf-good.conf
       solc-versions: 0.7.6 0.8.1
+      job-name: "Passing Test"
