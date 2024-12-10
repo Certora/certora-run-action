@@ -251,7 +251,6 @@ jobs:
           echo "|--------|--------|------|" >> "$REPORT_FILE"
 
           # Wait for all jobs to finish and mark if any failed
-          final_ret=0
           failed_jobs=0
           for i in "${!pids[@]}"; do
             ret=0
@@ -259,7 +258,6 @@ jobs:
             if [[ $ret -ne 0 ]]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
-              final_ret=$ret
               echo "| ${configs[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
             else
               LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
@@ -274,7 +272,7 @@ jobs:
           # Remove empty log files
           find "$LOG_DIR" -type f -empty -delete
 
-          if [[ $ret -ne 0 ]]; then
+          if [[ $failed_jobs -ne 0 ]]; then
             echo "Some configurations failed! Please check the logs."
             exit $final_ret
           fi
@@ -316,4 +314,5 @@ jobs:
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
+          message-id: ${{ steps.group-id.outputs.group_id }}
           message-path: ${{ env.REPORT_FILE }}
