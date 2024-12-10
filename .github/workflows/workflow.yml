@@ -289,7 +289,7 @@ jobs:
             -H "Authorization: Bearer ${GITHUB_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/statuses/$COMMIT_SHA \
-            -d '{"state":"pending","target_url":"https://prover.certora.com","description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.","context":"certora-run"}'
+            -d '{"state":"pending","target_url":"https://prover.certora.com","description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.","context":"certora-run/${{ steps.group-id.outputs.group_id }}"}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
