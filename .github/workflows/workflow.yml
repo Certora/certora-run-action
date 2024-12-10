@@ -243,7 +243,7 @@ jobs:
           failed_jobs=0
           for i in ${!pids[@]}; do
             ret=0
-            wait "${pid[i]}" || ret=$?
+            wait "${pids[i]}" || ret=$?
             if [ $ret -ne 0 ]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
