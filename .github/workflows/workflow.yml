@@ -64,11 +64,11 @@ on:
         type: boolean
         description: |-
           Whether to use the beta version of the `certora-cli`.
-      add-status:
-        default: true
-        type: boolean
+      job-name:
+        default: ${{ github.job }}
+        type: string
         description: |-
-          Whether to add status checks to the commit.
+          The name of the job. Default is the name of the job that called this workflow.
 
     secrets:
       CERTORAKEY:
@@ -241,7 +241,8 @@ jobs:
 
           echo "My pids (length ${#pids[@]})): ${pids[@]}"
 
-          echo "## Certora Run Started (${{ github.job.name }})" > "$REPORT_FILE"
+          echo "## Certora Run Started (${{ inputs.job-name }})" > "$REPORT_FILE"
+          echo "" >> $REPORT_FILE
           echo "- Group ID: $GROUP_ID" >> "$REPORT_FILE"
           echo "| Config | Status | Link |" >> "$REPORT_FILE"
           echo "|--------|--------|------|" >> "$REPORT_FILE"
@@ -296,7 +297,7 @@ jobs:
         id: upload-logs
         if: always()
         with:
-          name: certora-run-logs-${{ github.job.name }}-${{ github.run_id }}
+          name: certora-run-logs-${{ inputs.job-name }}-${{ github.run_id }}
           path: /tmp/certora-logs/*
 
       - name: Add Summary To Report
@@ -312,5 +313,5 @@ jobs:
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
-          message-id: ${{ github.job.name }}
+          message-id: ${{ inputs.job-name }}
           message-path: ${{ env.REPORT_FILE }}
