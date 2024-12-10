@@ -274,7 +274,7 @@ jobs:
 
           if [[ $failed_jobs -ne 0 ]]; then
             echo "Some configurations failed! Please check the logs."
-            exit $final_ret
+            exit $failed_jobs
           fi
 
         env:
