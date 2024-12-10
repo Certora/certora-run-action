@@ -311,4 +311,5 @@ jobs:
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
+          message-id: ${{ github.job.name }}
           message-path: ${{ env.REPORT_FILE }}

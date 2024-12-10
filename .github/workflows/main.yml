@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-fail:
     permissions:
       contents: read
       statuses: write
@@ -23,6 +23,21 @@ jobs:
         tests/conf-good.conf
         tests/conf-good.conf
         tests/conf-error.conf
+        tests/conf-good.conf
+        tests/conf-good.conf
+      solc-versions: 0.7.6 0.8.1
+
+  test-pass:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    uses: ./.github/workflows/workflow.yml
+    secrets:
+      CERTORAKEY: ${{ secrets.CERTORAKEY }}
+    with:
+      configurations: |-
+        tests/conf-good.conf
         tests/conf-good.conf
         tests/conf-good.conf
       solc-versions: 0.7.6 0.8.1
