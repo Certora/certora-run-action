@@ -108,9 +108,12 @@ jobs:
           echo "SHORT_COMMIT_SHA=${COMMIT_SHA:0:12}" >> $GITHUB_ENV
 
       - name: Group ID and Message
+        id: group-id
         run: |
           echo "MESSAGE_SUFFIX=GH:${{ github.repository }}/${SHORT_COMMIT_SHA}" >> $GITHUB_ENV
-          echo "GROUP_ID=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+          GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
+          echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
+          echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
 
       - name: Cache CLI Dependencies Key
         run: echo "${{ inputs.cli-version }}-${{ inputs.use-alpha }}-${{ inputs.use-beta }}" > .certora-cache
@@ -241,9 +244,9 @@ jobs:
 
           echo "My pids (length ${#pids[@]})): ${pids[@]}"
 
-          echo "## Certora Run Started (${{ inputs.job-name }} ${{ github.job }})" > "$REPORT_FILE"
-          echo "" >> $REPORT_FILE
+          echo "## Certora Run Started (${{ inputs.job-name }})" > "$REPORT_FILE"
           echo "- Group ID: $GROUP_ID" >> "$REPORT_FILE"
+          echo "" >> $REPORT_FILE
           echo "| Config | Status | Link |" >> "$REPORT_FILE"
           echo "|--------|--------|------|" >> "$REPORT_FILE"
 
@@ -297,7 +300,7 @@ jobs:
         id: upload-logs
         if: always()
         with:
-          name: certora-run-logs-${{ inputs.job-name }}-${{ github.run_id }}
+          name: certora-run-logs-${{ steps.group-id.outputs.group_id }}-${{ github.run_id }}
           path: /tmp/certora-logs/*
 
       - name: Add Summary To Report
@@ -313,5 +316,4 @@ jobs:
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
-          message-id: ${{ github.job }}
           message-path: ${{ env.REPORT_FILE }}
