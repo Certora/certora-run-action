@@ -210,16 +210,15 @@ jobs:
 
           pids=()
           for conf in $CONFIGURATIONS; do
-            echo "Starting $conf"
-
             if [[ ${#conf} -gt $conf_max_length ]]; then
               msg_conf=${conf: -$REMAINING_LEN}
             else
               msg_conf=$conf
             fi
+            echo "Starting $conf with message: $msg_conf"
 
             # Create log files
-            LOG_FILE="$LOG_DIR/${conf}.log"
+            LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
             mkdir -p "$(dirname "$LOG_FILE")"
 
             uvx --from "$CERT_CLI_PACKAGE" certoraRun \
@@ -228,7 +227,7 @@ jobs:
               --server "${{ inputs.server }}" \
               --group_id "${GROUP_ID}" \
               --send_only \
-              --wait_for_results none >"$LOG_FILE" 2>&1 &
+              --wait_for_results none &>"$LOG_FILE" &
             pids+=($!)
 
             ((jobs++)) || true
@@ -250,8 +249,9 @@ jobs:
               final_ret=$ret
               echo "| ${CONFIGURATIONS[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
             else
-              link=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_DIR/${CONFIGURATIONS[i]}.log")
-              echo "| ${CONFIGURATIONS[i]} | Submited | [link]($link) |" >> "$REPORT_FILE"
+              LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
+              LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_FILE")
+              echo "| ${CONFIGURATIONS[i]} | Submited | [link]($LINK) |" >> "$REPORT_FILE"
             fi
           done
 
