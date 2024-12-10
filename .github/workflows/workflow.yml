@@ -251,7 +251,7 @@ jobs:
               echo "| ${CONFIGURATIONS[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
             else
               LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
-              LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_FILE")
+              LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_FILE" || true)
               echo "| ${CONFIGURATIONS[i]} | Submited | [link]($LINK) |" >> "$REPORT_FILE"
             fi
           done
