@@ -241,7 +241,7 @@ jobs:
 
           echo "My pids (length ${#pids[@]})): ${pids[@]}"
 
-          echo "## Certora Run Started (${{ inputs.job-name }})" > "$REPORT_FILE"
+          echo "## Certora Run Started (${{ inputs.job-name }} ${{ github.job }})" > "$REPORT_FILE"
           echo "" >> $REPORT_FILE
           echo "- Group ID: $GROUP_ID" >> "$REPORT_FILE"
           echo "| Config | Status | Link |" >> "$REPORT_FILE"
@@ -313,5 +313,5 @@ jobs:
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
-          message-id: ${{ inputs.job-name }}
+          message-id: ${{ github.job }}
           message-path: ${{ env.REPORT_FILE }}
