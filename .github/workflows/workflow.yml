@@ -211,6 +211,7 @@ jobs:
 
           pids=()
           configs=()
+          logs=()
           for conf in $CONFIGURATIONS; do
             if [[ ${#conf} -gt $MAX_MSG_LEN ]]; then
               MSG_CONF="${conf: -$REMAINING_LEN}"
@@ -220,8 +221,10 @@ jobs:
             echo "Starting $conf with message: $MSG_CONF"
 
             # Create log files
-            LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
+            RAND_SUFF=$(openssl rand -hex 6)
+            LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}-${RAND_SUFF}.log" | tr -s '/')"
             mkdir -p "$(dirname "$LOG_FILE")"
+            logs+=("$LOG_FILE")
 
             uvx --from "$CERT_CLI_PACKAGE" certoraRun \
               $conf \
@@ -254,8 +257,7 @@ jobs:
               final_ret=$ret
               echo "| ${configs[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
             else
-              LOG_FILE="$(printf "%s" "${LOG_DIR}${configs[i]}.log" | tr -s '/')"
-              LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_FILE" || true)
+              LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
               echo "| ${configs[i]} | Submited | [link]($LINK) |" >> "$REPORT_FILE"
             fi
           done
@@ -293,7 +295,7 @@ jobs:
         id: upload-logs
         if: always()
         with:
-          name: logs
+          name: certora-run-logs-${{ github.repository }}-${{ github.run_id }}
           path: /tmp/certora-logs/*
 
       - name: Add Summary To Report
