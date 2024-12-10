@@ -241,7 +241,7 @@ jobs:
           # Wait for all jobs to finish and mark if any failed
           final_ret=0
           failed_jobs=0
-          for i in $(seq 0 jobs); do
+          for i in $(seq 0 $jobs); do
             ret=0
             wait "${pids[i]}" || ret=$?
             if [[ $ret -ne 0 ]]; then
