@@ -49,7 +49,6 @@ on:
         description: |-
           The prefix to remove from the Solidity version when saving binaries.
       server:
-        required: true
         default: production
         type: string
         description: |-
