@@ -258,10 +258,10 @@ jobs:
             if [[ $ret -ne 0 ]]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
-              echo "| ${configs[i]} | Failed ($ret) | - | ${logs[i]} |" >> "$REPORT_FILE"
+              echo "| ${configs[i]} | Failed ($ret) | - | ${logs[i]#$LOG_DIR} |" >> "$REPORT_FILE"
             else
               LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
-              echo "| ${configs[i]} | Submited | [link]($LINK) | ${logs[i]} |" >> "$REPORT_FILE"
+              echo "| ${configs[i]} | Submited | [link]($LINK) | ${logs[i]$LOG_DIR} |" >> "$REPORT_FILE"
             fi
           done
 
