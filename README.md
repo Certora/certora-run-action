@@ -8,7 +8,6 @@ in your GitHub Actions workflows.
 To use this action, add the following to your GitHub Actions workflow:
 
 ```yaml
-
 jobs:
   certora_run:
     permissions:
@@ -60,15 +59,16 @@ besides the permissions, the action requires the following secrets:
 - `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
 - `job-name` - Name of the job (optional).
 
-
 ### Comments on the Pull Request
 
+![GitHub PR Comments](/static/comments.png?raw=true "GitHub PR Comments")
+![GitHub PR Status](/static/status.png?raw=true "GitHub PR Status")
 
 ## FAQ
 
 Why do we have this action in `.github/workflows`?
-- Unfortunately, GitHub Actions does not support relative paths outside this folder https://github.com/orgs/community/discussions/9050
 
+- Unfortunately, GitHub Actions does not support relative paths outside this folder [https://github.com/orgs/community/discussions/9050]
 
 ## Development Setup
 
@@ -77,12 +77,12 @@ the action locally. The easiest way to set up everything is through combination 
 [nix] and [direnv].
 
 In order to set up the environment, follow these steps:
+
 ```bash
 direnv allow
 ```
 
 Then you can run the action with the following command:
-
 
 ```bash
 act workflow_dispatch \
