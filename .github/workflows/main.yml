@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    uses: ./.github/workflows/workflow.yml@main
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CERTORAKEY: ${{ secrets.CERTORAKEY }}
+    with:
+      use-beta: true
+      configurations: |-
+        tests/conf1.conf
+        tests/conf2.conf
+      solc-versions: 0.7.6 0.8.1
