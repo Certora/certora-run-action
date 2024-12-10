@@ -76,6 +76,8 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  LOG_DIR: /tmp/certora-logs/
+  REPORT_FILE: /tmp/certora-logs/REPORT.md
 
 jobs:
   certora_run:
@@ -204,9 +206,9 @@ jobs:
           REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
           jobs=0
 
-          LOG_DIR="/tmp/certora-logs/"
           mkdir -p "$LOG_DIR"
 
+          pids=()
           for conf in $CONFIGURATIONS; do
             echo "Starting $conf"
 
@@ -217,10 +219,8 @@ jobs:
             fi
 
             # Create log files
-            STDOUT="$LOG_DIR/$conf.stdout"
-            mkdir -p "$(dirname "$STDOUT")"
-            STDERR="$LOG_DIR/$conf.stderr"
-            mkdir -p "$(dirname "$STDERR")"
+            LOG_FILE="$LOG_DIR/${conf}.log"
+            mkdir -p "$(dirname "$LOG_FILE")"
 
             uvx --from "$CERT_CLI_PACKAGE" certoraRun \
               $conf \
@@ -228,21 +228,30 @@ jobs:
               --server "${{ inputs.server }}" \
               --group_id "${GROUP_ID}" \
               --send_only \
-              --wait_for_results none >"$STDERR" 2>"$STDERR" &
+              --wait_for_results none >"$LOG_FILE" 2>&1 &
+            pids+=($!)
 
             ((jobs++)) || true
           done
 
+          echo "## Certora Run Started" > "$REPORT_FILE"
+          echo "| Config | Status | Link |" >> "$REPORT_FILE"
+          echo "|--------|--------|------|" >> "$REPORT_FILE"
+
           # Wait for all jobs to finish and mark if any failed
-          total_ret=0
+          final_ret=0
           failed_jobs=0
-          for conf in $CONFIGURATIONS; do
+          for i in ${!pids[@]}; do
             ret=0
-            wait -n || ret=$?
+            wait "${pid[i]}" || ret=$?
             if [ $ret -ne 0 ]; then
               ((jobs--)) || true
               ((failed_jobs++)) || true
-              total_ret=$ret
+              final_ret=$ret
+              echo "| ${CONFIGURATIONS[i]} | Failed ($ret) | - |" >> "$REPORT_FILE"
+            else
+              link=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "$LOG_DIR/${CONFIGURATIONS[i]}.log")
+              echo "| ${CONFIGURATIONS[i]} | Submited | [link]($link) |" >> "$REPORT_FILE"
             fi
           done
 
@@ -255,7 +264,7 @@ jobs:
 
           if [ $ret -ne 0 ]; then
             echo "Some configurations failed! Please check the logs."
-            exit $ret
+            exit $final_ret
           fi
 
         env:
@@ -282,16 +291,16 @@ jobs:
           name: logs
           path: /tmp/certora-logs/*
 
-      # Add comment with log link
-      - name: Add Comment With Logs Link
+      - name: Add Summary To Report
         if: ${{ steps.upload-logs.outputs.artifact-url }}
         run: |
-          curl -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/commits/$COMMIT_SHA/comments \
-            -d '{"body":"# Started Certora Run\n\n- Started ${{ steps.certora-run.outputs.total_jobs }} jobs\n- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed\n\n[Logs](${{ steps.upload-logs.outputs.artifact-url }})\n"}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "### Certora Run Summary" >> $REPORT_FILE
+          echo "- Started ${{ steps.certora-run.outputs.total_jobs }} jobs" >> $GITHUB_ENV
+          echo "- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed\n" >> $GITHUB_ENV
+          echo "[Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $GITHUB_ENV
+
+      - name: Add report comment
+        if: ${{ steps.upload-logs.outputs.artifact-url }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: $REPORT_FILE
