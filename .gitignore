@@ -1,6 +1,7 @@
 /tmp
 emv-*
 .certora_internal/
+.direnv/
 
 # MacOS
 # General
