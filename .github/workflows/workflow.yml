@@ -55,17 +55,16 @@ on:
           The server to run the tests on. Default is `production`.
           Options: `production`, `staging`, or `vaas-dev`.
       use-alpha:
-        required: false
+        default: false
         type: boolean
         description: |-
           Whether to use the alpha version of the `certora-cli`.
       use-beta:
-        required: false
+        default: false
         type: boolean
         description: |-
           Whether to use the beta version of the `certora-cli`.
       add-status:
-        required: true
         default: true
         type: boolean
         description: |-
