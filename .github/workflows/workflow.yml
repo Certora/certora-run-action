@@ -211,12 +211,12 @@ jobs:
 
           pids=()
           for conf in $CONFIGURATIONS; do
-            if [[ ${#conf} -gt $conf_max_length ]]; then
-              msg_conf=${conf: -$REMAINING_LEN}
+            if [[ ${#conf} -gt $MAX_MSG_LEN ]]; then
+              MSG_CONF="${conf: -$REMAINING_LEN}"
             else
-              msg_conf=$conf
+              MSG_CONF="$conf"
             fi
-            echo "Starting $conf with message: $msg_conf"
+            echo "Starting $conf with message: $MSG_CONF"
 
             # Create log files
             LOG_FILE="$(printf "%s" "${LOG_DIR}${conf}.log" | tr -s '/')"
@@ -224,11 +224,11 @@ jobs:
 
             uvx --from "$CERT_CLI_PACKAGE" certoraRun \
               $conf \
-              --msg "${msg_conf} ${MESSAGE_SUFFIX}" \
+              --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
               --server "${{ inputs.server }}" \
               --group_id "${GROUP_ID}" \
               --send_only \
-              --wait_for_results none &>"$LOG_FILE" &
+              --wait_for_results none >"$LOG_FILE" 2>&1 &
             pids+=($!)
 
             ((jobs++)) || true
@@ -296,12 +296,12 @@ jobs:
         if: always()
         run: |
           echo "### Certora Run Summary" >> $REPORT_FILE
-          echo "- Started ${{ steps.certora-run.outputs.total_jobs }} jobs" >> $GITHUB_ENV
-          echo "- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed\n" >> $GITHUB_ENV
-          echo "[Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $GITHUB_ENV
+          echo "- Started ${{ steps.certora-run.outputs.total_jobs }} jobs" >> $REPORT_FILE
+          echo "- ${{ steps.certora-run.outputs.failed_jobs }} jobs failed\n" >> $REPORT_FILE
+          echo "[Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> $REPORT_FILE
 
       - name: Add report comment
         if: always()
         uses: mshick/add-pr-comment@v2
         with:
-          message-path: $REPORT_FILE
+          message-path: ${{ env.REPORT_FILE }}
