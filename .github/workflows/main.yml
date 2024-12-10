@@ -19,6 +19,10 @@ jobs:
     with:
       use-beta: true
       configurations: |-
-        tests/conf1.conf
-        tests/conf2.conf
+        tests/conf-error.conf
+        tests/conf-good.conf
+        tests/conf-good.conf
+        tests/conf-error.conf
+        tests/conf-good.conf
+        tests/conf-good.conf
       solc-versions: 0.7.6 0.8.1
