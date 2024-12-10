@@ -241,7 +241,8 @@ jobs:
 
           echo "My pids (length ${#pids[@]})): ${pids[@]}"
 
-          echo "## Certora Run Started" > "$REPORT_FILE"
+          echo "## Certora Run Started (${{ github.job.name }})" > "$REPORT_FILE"
+          echo "- Group ID: $GROUP_ID" >> "$REPORT_FILE"
           echo "| Config | Status | Link |" >> "$REPORT_FILE"
           echo "|--------|--------|------|" >> "$REPORT_FILE"
 
@@ -295,7 +296,7 @@ jobs:
         id: upload-logs
         if: always()
         with:
-          name: certora-run-logs-${{ github.repository }}-${{ github.run_id }}
+          name: certora-run-logs-${{ github.job.name }}-${{ github.run_id }}
           path: /tmp/certora-logs/*
 
       - name: Add Summary To Report
