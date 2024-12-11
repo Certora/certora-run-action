@@ -27,6 +27,7 @@ jobs:
         tests/conf-good.conf
       solc-versions: 0.7.6 0.8.1
       job-name: "Failing Test"
+      server: "vaas-dev"
 
   test-pass:
     permissions:
@@ -43,3 +44,4 @@ jobs:
         tests/conf-good.conf
       solc-versions: 0.7.6 0.8.1
       job-name: "Passing Test"
+      server: "vaas-dev"
