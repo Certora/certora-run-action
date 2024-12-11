@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-fail:
+  fail_to_start:
     permissions:
       contents: read
       statuses: write
@@ -19,17 +19,17 @@ jobs:
     with:
       use-beta: true
       configurations: |-
-        tests/conf-error.conf
-        tests/conf-good.conf
-        tests/conf-good.conf
-        tests/conf-error.conf
-        tests/conf-good.conf
-        tests/conf-good.conf
+        tests/conf-start-error.conf
+        tests/conf-verified.conf
+        tests/conf-violations.conf
+        tests/conf-verified.conf
+        tests/conf-violations.conf
+        tests/conf-start-error.conf
       solc-versions: 0.7.6 0.8.1
-      job-name: "Failing Test"
+      job-name: "Some Failing Test"
       server: "vaas-dev"
 
-  test-pass:
+  violated_rules:
     permissions:
       contents: read
       statuses: write
@@ -39,9 +39,27 @@ jobs:
       CERTORAKEY: ${{ secrets.CERTORAKEY }}
     with:
       configurations: |-
-        tests/conf-good.conf
-        tests/conf-good.conf
-        tests/conf-good.conf
+        tests/conf-verified.conf
+        tests/conf-violations.conf
+        tests/conf-verified.conf
+        tests/conf-violations.conf
+      solc-versions: 0.7.6 0.8.1
+      job-name: "Passing Test"
+      server: "vaas-dev"
+
+  verified_rules:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    uses: ./.github/workflows/certora_run.yml
+    secrets:
+      CERTORAKEY: ${{ secrets.CERTORAKEY }}
+    with:
+      configurations: |-
+        tests/conf-verified.conf
+        tests/conf-verified.conf
+        tests/conf-verified.conf
       solc-versions: 0.7.6 0.8.1
       job-name: "Passing Test"
       server: "vaas-dev"
