@@ -26,7 +26,7 @@ jobs:
         tests/conf-violations.conf
         tests/conf-start-error.conf
       solc-versions: 0.7.6 0.8.1
-      job-name: "Some Failing Test"
+      job-name: "Fail to Start"
       server: "vaas-dev"
 
   violated_rules:
@@ -44,7 +44,7 @@ jobs:
         tests/conf-verified.conf
         tests/conf-violations.conf
       solc-versions: 0.7.6 0.8.1
-      job-name: "Passing Test"
+      job-name: "Violated Rules"
       server: "vaas-dev"
 
   verified_rules:
@@ -61,5 +61,5 @@ jobs:
         tests/conf-verified.conf
         tests/conf-verified.conf
       solc-versions: 0.7.6 0.8.1
-      job-name: "Passing Test"
+      job-name: "Verified Rules"
       server: "vaas-dev"

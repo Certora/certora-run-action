@@ -4,7 +4,7 @@ contract Fixed {
 
 	function inc() public returns (uint) {
 		require(msg.sender == admin);
-		require(counter < uint256(-1));
+		require(counter < 1000);
 		return ++counter;
 	}
 
