@@ -3,6 +3,8 @@
 This repostory contains a reusable GitHub Action workflow for running Certora Prover
 in your GitHub Actions workflows.
 
+Test.
+
 ## Usage
 
 To use this action, add the following to your GitHub Actions workflow:
