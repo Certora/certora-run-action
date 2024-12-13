@@ -127,7 +127,7 @@ runs:
         fi
 
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
-        echo 'certora_subdomain=$CERTORA_SUBDOMAIN' >> "$GITHUB_OUTPUT"
+        echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
 
     - name: Install uv
       uses: astral-sh/setup-uv@v4
@@ -188,7 +188,7 @@ runs:
             "state":"pending",
             "target_url":"https://${{ steps.setup-env.outputs.certora_subdomain }}.certora.com/?text=${{ steps.setup-env.outputs.short_sha }}&allUsers=true&groupIds=${{ steps.setup-env.outputs.group_id }}",
             "description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.",
-            "context":"certora-run/${{ steps.group-id.outputs.group_id }}"
+            "context":"certora-run/${{ steps.setup-env.outputs.group_id }}"
           }'
 
     - name: Upload Logs
@@ -196,14 +196,14 @@ runs:
       id: upload-logs
       if: always()
       with:
-        name: certora-run-logs-${{ steps.group-id.outputs.group_id }}-${{ github.run_id }}
+        name: certora-run-logs-${{ steps.setup-env.outputs.group_id }}-${{ github.run_id }}
         path: /tmp/certora-logs/*
 
     - name: Add Summary To Report
       shell: bash
       if: always()
       run: |
-        echo >>"$REPORT_FILE" <<EOF
+        echo >>"$CERTORA_REPORT_FILE" <<EOF
 
         ### Certora Run Summary
 
