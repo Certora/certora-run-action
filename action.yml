@@ -160,13 +160,15 @@ runs:
     - name: Download Solidity Binaries
       shell: bash
       run: |
-        ${{ github.action_path }}/scripts/solc-downlaod.sh "${{ inputs.solc-remove-version-prefix }}" "${{ inputs.solc-versions }}"
+        find -type f ${{ github.action_path }}
+        bash ${{ github.action_path }}/scripts/solc-downlaod.sh \
+          "${{ inputs.solc-remove-version-prefix }}" \
+          "${{ inputs.solc-versions }}"
 
     - name: Certora Run
       id: certora-run
       shell: bash
-      run: |
-        ${{ github.action_path }}/scripts/run-certora.sh
+      run: bash ${{ github.action_path }}/scripts/run-certora.sh
       env:
         CERTORA_CONFIGURATIONS: "${{ inputs.configurations }}"
         CERTORA_SERVER: "${{ inputs.server }}"
