@@ -46,7 +46,7 @@ for conf_line in $confs; do
     --group_id "$GROUP_ID" \
     --send_only \
     --wait_for_results none \
-    | xargs uvx --from "$CERT_CLI_PACKAGE" certoraRun >"$LOG_FILE" 2>&1 &
+    | xargs -I{} uvx --from "$CERT_CLI_PACKAGE" certoraRun {} >"$LOG_FILE" 2>&1 &
 
   pids+=($!)
   configs+=("$conf_line")
