@@ -8,7 +8,8 @@ GH_LINK='https://api.github.com/repos/ethereum/solidity/releases/tags/v'
 JQ_FILTER='.assets[] | select(.name == "solc-static-linux") | .url'
 AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
 
-for version in "${@:2}"; do
+VERSIONS="${*:2}"
+for version in $VERSIONS; do
   version="${version#v}"
   if [ -z "$REMOVE_PREFIX" ]; then
     use_version=$version
