@@ -1,3 +1,5 @@
+import 'base64-sol/base64.sol';
+
 contract Fixed {
 	address public admin;
 	uint public counter;
