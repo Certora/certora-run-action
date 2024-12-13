@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
