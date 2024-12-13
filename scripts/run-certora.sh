@@ -14,7 +14,7 @@ IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
-for conf_line in $confs; do
+for conf_line in "${confs[@]}"; do
 
   if [[ ${#conf_line} -gt $MAX_MSG_LEN ]]; then
     MSG_CONF="${conf_line: -$REMAINING_LEN}"
