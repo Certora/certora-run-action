@@ -17,7 +17,7 @@
         devShell = with pkgs;
           mkShellNoCC {
             name = "cert-gh-run-action";
-            packages = [ act jq gh ];
+            packages = [ act jq gh nodejs ];
 
             nativeBuildInputs = [
               # set SOURCE_DATE_EPOCH so that we can use python wheels

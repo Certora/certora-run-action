@@ -1,29 +1,38 @@
 # Certora Run GitHub Action
 
-This repostory contains a reusable GitHub Action workflow for running Certora Prover
-in your GitHub Actions workflows.
+This repostory contains Certora Run GitHub Action that allows you to run Certora Prover
+on your contracts in parallel and recieve the results as a comment on the pull request.
 
 ## Usage
 
-To use this action, add the following to your GitHub Actions workflow:
+To use this action, add `Certora Run GitHub Application` to rou repository and add
+following to your GitHub Actions workflow:
 
 ```yaml
 jobs:
   certora_run:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       statuses: write
       pull-requests: write
-    uses: Certora/certora-run-action/.github/workflows/certora_run.yml@main
-    secrets:
-      CERTORAKEY: ${{ secrets.CERTORAKEY }}
-    with:
-      configurations: |-
-        tests/conf-good.conf
-        tests/conf-good1.conf
-        tests/conf-good2.conf
-      solc-versions: 0.7.6 0.8.1
-      job-name: "Passing Test"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+      - uses: Certora/certora-run-action@main
+        with:
+          configurations: |-
+            tests/conf-verified.conf
+            tests/conf-verified.conf --rule monotone --method "counter()"
+            tests/conf-verified.conf --rule invertible
+            tests/conf-verified.conf --method "counter()"
+          solc-versions: 0.7.6 0.8.1
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 This action will download all the specified Solidity versions, start `certora-cli` on
@@ -63,12 +72,6 @@ besides the permissions, the action requires the following secrets:
 
 ![GitHub PR Comments](/static/comments.png?raw=true "GitHub PR Comments")
 ![GitHub PR Status](/static/status.png?raw=true "GitHub PR Status")
-
-## FAQ
-
-Why do we have this action in `.github/workflows`?
-
-- Unfortunately, GitHub Actions does not support relative paths outside this folder [https://github.com/orgs/community/discussions/9050]
 
 ## Development Setup
 
