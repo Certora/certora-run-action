@@ -9,11 +9,6 @@ inputs:
     description: |-
       The Certora key to use for the `certoraRun` command.
 
-  github-token:
-    required: true
-    description: |-
-      The GitHub token to use for the adding status and comments.
-
   cli-version:
     required: false
     description: |-
