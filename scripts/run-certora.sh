@@ -40,13 +40,13 @@ for conf_line in "${confs[@]}"; do
   mkdir -p "$(dirname "$LOG_FILE")"
   logs+=("$LOG_FILE")
 
-  echo "$conf_line" \
+  uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
     --server "$CERTORA_SERVER" \
     --group_id "$GROUP_ID" \
     --send_only \
     --wait_for_results none \
-    | xargs uvx --from "$CERT_CLI_PACKAGE" certoraRun >"$LOG_FILE" 2>&1 &
+    >"$LOG_FILE" 2>&1 &
 
   pids+=($!)
   configs+=("$conf_line")
