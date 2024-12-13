@@ -70,8 +70,17 @@ besides the permissions, the action requires the following secrets:
 
 ### Comments on the Pull Request
 
+First it will add a comment with details about runs:
+
 ![GitHub PR Comments](/static/comments.png?raw=true "GitHub PR Comments")
+
+Then you can see the live status of the runs:
+
 ![GitHub PR Status](/static/status.png?raw=true "GitHub PR Status")
+
+And finally, once a first job finishes, GH App will add and update a review with the results:
+
+![GitHub PR Review](/static/reviews.png?raw=true "GitHub PR Review")
 
 ## Development Setup
 
