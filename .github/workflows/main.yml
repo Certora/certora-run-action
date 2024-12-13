@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: Certora/certora-run-action@feat/action
+      - uses: Certora/certora-run-action@main
         with:
           use-beta: true
           configurations: |-
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: Certora/certora-run-action@feat/action
+      - uses: Certora/certora-run-action@main
         with:
           configurations: |-
             tests/conf-verified.conf
@@ -71,7 +71,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: Certora/certora-run-action@feat/action
+      - uses: Certora/certora-run-action@main
         with:
           configurations: |-
             tests/conf-verified.conf
