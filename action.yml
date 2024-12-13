@@ -161,7 +161,7 @@ runs:
       shell: bash
       run: |
         find ${{ github.action_path }} -type f
-        bash ${{ github.action_path }}/scripts/solc-downlaod.sh \
+        bash ${{ github.action_path }}/scripts/solc-download.sh \
           "${{ inputs.solc-remove-version-prefix }}" \
           "${{ inputs.solc-versions }}"
 
