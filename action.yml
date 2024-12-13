@@ -204,16 +204,7 @@ runs:
       shell: bash
       if: always()
       run: |
-        echo >>"${{ steps.setup-env.outputs.report_file }}" <<EOF
-
-        ### Certora Run Summary
-
-        - Started ${{ steps.certora-run.outputs.total_jobs }} jobs
-        - ${{ steps.certora-run.outputs.failed_jobs }} jobs failed
-
-        [Download Logs](${{ steps.upload-logs.outputs.artifact-url }})
-
-        EOF
+        echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> "${{ steps.setup-env.outputs.report_file }}"
 
     - name: Add report comment
       if: always()

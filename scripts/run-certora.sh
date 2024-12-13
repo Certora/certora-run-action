@@ -85,6 +85,16 @@ echo "failed_jobs=$failed_jobs" >> "$GITHUB_OUTPUT"
 # Remove empty log files
 find "$CERTORA_LOG_DIR" -type f -empty -delete
 
+cat >>"$CERTORA_REPORT_FILE" <<EOF
+
+### Certora Run Summary
+
+- Started $jobs jobs
+- $failed_jobs jobs failed
+
+EOF
+
+
 if [[ $failed_jobs -ne 0 ]]; then
   echo "Some configurations failed! Please check the logs."
   exit 1
