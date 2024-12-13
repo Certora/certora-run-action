@@ -57,8 +57,8 @@ cat >"$CERTORA_REPORT_FILE" <<EOF
 
 - Group ID: $GROUP_ID
 
-"| Config | Status | Link | Log File |"
-"|--------|--------|------|----------|"
+| Config | Status | Link | Log File |
+|--------|--------|------|----------|
 EOF
 
 # Wait for all jobs to finish and mark if any failed
