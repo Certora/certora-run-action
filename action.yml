@@ -173,6 +173,7 @@ runs:
         CERTORA_CONFIGURATIONS: "${{ inputs.configurations }}"
         CERTORA_SERVER: "${{ inputs.server }}"
         CERTORAKEY: "${{ inputs.certora-key }}"
+        CERTORA_JOB_NAME: "${{ inputs.job-name }}"
 
     - name: Add GH Status
       if: always()
@@ -203,7 +204,7 @@ runs:
       shell: bash
       if: always()
       run: |
-        echo >>"$CERTORA_REPORT_FILE" <<EOF
+        echo >>"${{ steps.setup-env.outputs.report_file }}" <<EOF
 
         ### Certora Run Summary
 
@@ -211,6 +212,7 @@ runs:
         - ${{ steps.certora-run.outputs.failed_jobs }} jobs failed
 
         [Download Logs](${{ steps.upload-logs.outputs.artifact-url }})
+
         EOF
 
     - name: Add report comment
