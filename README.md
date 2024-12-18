@@ -1,11 +1,13 @@
 # Certora Run GitHub Action
 
-This repostory contains Certora Run GitHub Action that allows you to run Certora Prover
-on your contracts in parallel and recieve the results as a comment on the pull request.
+This repository contains Certora Run GitHub Action that allows you to run Certora Prover
+on your contracts in parallel, receive the results as a comment on the pull request.
+
+Currently, it's an alpha release.
 
 ## Usage
 
-To use this action, add `Certora Run GitHub Application` to rou repository and add
+To use this action, add `Certora Run GitHub Application` to the repository and add
 following to your GitHub Actions workflow:
 
 ```yaml
@@ -36,10 +38,10 @@ jobs:
 ```
 
 This action will download all the specified Solidity versions, start `certora-cli` on
-every configuration file and run the tests asynchronously. If one of the configurations
-fails to start, the action will be marked as failed all other jobs will continue to run.
+every configuration file, and run the tests asynchronously. If one of the configurations
+fails to start, the action will be marked as failed, and all other jobs will continue to run.
 
-Once all the test are finished `Certora Run GitHub Application` will mark commit
+Once all the tests are finished `Certora Run GitHub Application` will mark the commit
 statuses as either `success` or `failure` and comment on the pull request with the
 results.
 
@@ -51,7 +53,7 @@ This action requires the following permissions:
 
 - `contents: read` - Clone the repository and read the configuration files.
 - `statuses: write` - Write the status of the run to the GitHub UI.
-- `pull-requests: write` - Write the status of the run & comment to the pull request.
+- `pull-requests: write` - Write the run status & comment on the pull request.
 
 besides the permissions, the action requires the following secrets:
 
@@ -70,7 +72,7 @@ besides the permissions, the action requires the following secrets:
 
 ### Comments on the Pull Request
 
-First it will add a comment with details about runs:
+First, it will add a comment with details about runs:
 
 ![GitHub PR Comments](/static/comments.png?raw=true "GitHub PR Comments")
 
@@ -78,7 +80,7 @@ Then you can see the live status of the runs:
 
 ![GitHub PR Status](/static/status.png?raw=true "GitHub PR Status")
 
-And finally, once a first job finishes, GH App will add and update a review with the results:
+And finally, once the first job finishes, GH App will add and update a review with the results:
 
 ![GitHub PR Review](/static/reviews.png?raw=true "GitHub PR Review")
 
