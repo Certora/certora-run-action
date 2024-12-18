@@ -7,7 +7,7 @@ Currently, it's an alpha release.
 
 ## Usage
 
-To use this action, add `Certora Run GitHub Application` to the repository and add
+To use this action, add the `Certora Run GitHub Application` to the repository and add
 following to your GitHub Actions workflow:
 
 ```yaml
