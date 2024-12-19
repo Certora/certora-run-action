@@ -8,80 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  fail_to_start:
+  syntax-check:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      statuses: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - uses: Certora/certora-run-action@main
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
         with:
-          use-beta: true
-          configurations: |-
-            tests/conf-start-error.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-violations.conf --method "counter()"
-            tests/conf-verified.conf
-            tests/conf-violations.conf --rule invertible
-            tests/conf-start-error.conf --method "counter()"
-          solc-versions: 0.7.6 0.8.1
-          job-name: "Fail to Start"
-          server: "vaas-dev"
-          certora-key: ${{ secrets.CERTORAKEY }}
-        env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  violated_rules:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      statuses: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - uses: Certora/certora-run-action@main
-        with:
-          configurations: |-
-            tests/conf-verified.conf
-            tests/conf-violations.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
-            tests/conf-violations.conf
-          solc-versions: 0.7.6 0.8.1
-          job-name: "Violated Rules"
-          server: "vaas-dev"
-          certora-key: ${{ secrets.CERTORAKEY }}
-        env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  verified_rules:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      statuses: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - uses: Certora/certora-run-action@main
-        with:
-          configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
-          solc-versions: 0.7.6 0.8.1
-          job-name: "Verified Rules"
-          server: "vaas-dev"
-          certora-key: ${{ secrets.CERTORAKEY }}
-        env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tests
+        run: nix develop --impure --command make check

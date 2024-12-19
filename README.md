@@ -33,7 +33,6 @@ jobs:
           job-name: "Verified Rules"
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 

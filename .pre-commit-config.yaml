@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        entry: make
+        args: ["shellcheck"]
+        types: [bash]
+        language: system
+        pass_filenames: false
+      - id: github-action-syntax
+        name: github-action-syntax
+        entry: make
+        args: ["github-action-syntax"]
+        language: system
+        files: (^\.github\/.*\.yml$)|(^action\.yml$)
+        types: [yaml]
+        pass_filenames: false
