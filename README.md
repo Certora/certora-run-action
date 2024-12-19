@@ -7,7 +7,7 @@ Currently, it's an alpha release.
 
 ## Usage
 
-To use this action, add the `Certora Run GitHub Application` to the repository and add
+To use this action, add the [Certora Run Application] to the repository and add
 following to your GitHub Actions workflow:
 
 ```yaml
@@ -68,6 +68,9 @@ besides the permissions, the action requires the following secrets:
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
 - `job-name` - Name of the job (optional).
+- `install-java` - Install Java for type checking (optional). Default is `true`.
+- `compilation-steps-only` - Only compile the contracts (optional). Default is `false`.
+- `certora-key` - API key for Certora Prover.
 
 ### Comments on the Pull Request
 
@@ -108,3 +111,4 @@ act workflow_dispatch \
 [act]: https://github.com/nektos/act
 [nix]: https://nixos.org/
 [direnv]: https://github.com/direnv/direnv
+[Certora Run Application]: https://github.com/apps/certora-run

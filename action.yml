@@ -1,7 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-action.json
 name: Certora Run Action
 description: |-
-  Test
+  Certora Run Action submits prover jobs to Certora Cloud for verification and returns a
+  report with aggreaged results.
+
+branding:
+  color: blue
+  icon: cloud-lightning
 
 inputs:
   certora-key:
