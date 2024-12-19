@@ -79,11 +79,22 @@ for i in "${!pids[@]}"; do
     ((failed_jobs++)) || true
     echo "| ${configs[i]} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
   else
-    LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
-    echo "| ${configs[i]} | Submited | [link]($LINK) | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
-    if [[ -z "$LINK" ]]; then
-      ((jobs--)) || true
+    if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
+        STATUS="Compiled"
+    else
+        STATUS="Submited"
     fi
+
+    LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
+    if [[ -z "$LINK" ]]; then
+        ((jobs--)) || true
+        MD_LINK="-"
+    else
+        MD_LINK="[link]($LINK)"
+    fi
+
+    echo "| ${configs[i]} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+
   fi
 done
 
