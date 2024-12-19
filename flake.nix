@@ -37,7 +37,7 @@
         ciShell = with pkgs;
           mkShellNoCC {
             name = "cert-gh-run-action-ci";
-            packages = test_packages;
+            buildInputs = test_packages;
           };
       in {
         devShell = devShell;
