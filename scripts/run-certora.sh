@@ -26,7 +26,6 @@ for conf_line in "${confs[@]}"; do
   conf_file="${conf_parts[0]}"
 
   echo "Sanitizing $conf_file"
-  cat "$conf_file"
   tmp_conf=$(mktemp)
   json-strip-comments -e -o "$tmp_conf" < "$conf_file"
   if [[ "$(jq 'has("wait_for_results")' "$tmp_conf")" == 'true' ]]; then
@@ -34,7 +33,6 @@ for conf_line in "${confs[@]}"; do
   else
     mv "$tmp_conf" "$conf_file"
   fi
-  cat "$conf_file"
 
   echo "Starting '$conf_line' with message: $MSG_CONF"
 
