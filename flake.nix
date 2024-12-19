@@ -9,15 +9,21 @@
   outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
+        json-strip-comments-overlay = final: prev: {
+          json-strip-comments =
+            final.callPackage ./nix/json-strip-comments.nix { };
+        };
+
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ ];
+
+          overlays = [ json-strip-comments-overlay ];
         };
 
         devShell = with pkgs;
           mkShellNoCC {
             name = "cert-gh-run-action";
-            packages = [ act jq gh nodejs ];
+            packages = [ act jq gh nodejs json-strip-comments ];
 
             nativeBuildInputs = [
               # set SOURCE_DATE_EPOCH so that we can use python wheels

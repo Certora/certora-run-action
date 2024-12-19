@@ -26,11 +26,14 @@ for conf_line in "${confs[@]}"; do
   eval "conf_parts=($conf_line)"
   conf_file="${conf_parts[0]}"
 
-
   echo "Sanitizing $conf_file"
   tmp_conf=$(mktemp)
-  jq 'del(.wait_for_results)' "$conf_file" > "$tmp_conf"
-  mv "$tmp_conf" "$conf_file"
+  json-strip-comments -e -o "$tmp_conf" "$conf_file"
+  if [[ $(jq 'has("wait_for_results")' "$tmp_conf") == "true" ]]; then
+    jq 'del(.wait_for_results)' "$tmp_conf" > "$conf_file"
+  else
+    mv "$tmp_conf" "$conf_file"
+  fi
 
   echo "Starting '$conf_line' with message: $MSG_CONF"
 
@@ -39,6 +42,10 @@ for conf_line in "${confs[@]}"; do
   LOG_FILE="$(printf "%s" "${CERTORA_LOG_DIR}${conf_file}-${RAND_SUFF}.log" | tr -s '/')"
   mkdir -p "$(dirname "$LOG_FILE")"
   logs+=("$LOG_FILE")
+
+  if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "true" ]]; then
+    conf_parts+=("--compilation_steps_only")
+  fi
 
   uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
@@ -75,6 +82,9 @@ for i in "${!pids[@]}"; do
   else
     LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
     echo "| ${configs[i]} | Submited | [link]($LINK) | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    if [[ -z "$LINK" ]]; then
+      ((jobs--)) || true
+    fi
   fi
 done
 
