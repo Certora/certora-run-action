@@ -23,7 +23,16 @@
         devShell = with pkgs;
           mkShellNoCC {
             name = "cert-gh-run-action";
-            packages = [ act jq gh nodejs json-strip-comments ];
+            packages = [
+              act
+              jq
+              gh
+              nodejs
+              action-validator
+              shellcheck
+              pre-commit
+              json-strip-comments
+            ];
 
             nativeBuildInputs = [
               # set SOURCE_DATE_EPOCH so that we can use python wheels
