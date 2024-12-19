@@ -20,19 +20,13 @@
           overlays = [ json-strip-comments-overlay ];
         };
 
+        test_packages = with pkgs; [ action-validator shellcheck ];
+
         devShell = with pkgs;
           mkShellNoCC {
             name = "cert-gh-run-action";
-            packages = [
-              act
-              jq
-              gh
-              nodejs
-              action-validator
-              shellcheck
-              pre-commit
-              json-strip-comments
-            ];
+            packages = [ act jq gh nodejs pre-commit json-strip-comments ]
+              ++ test_packages;
 
             nativeBuildInputs = [
               # set SOURCE_DATE_EPOCH so that we can use python wheels
@@ -40,8 +34,14 @@
             ];
 
           };
+        ciShell = with pkgs;
+          mkShellNoCC {
+            name = "cert-gh-run-action-ci";
+            packages = test_packages;
+          };
       in {
         devShell = devShell;
+        ciShell = ciShell;
         packages = { dev-shell = devShell.inputDerivation; };
       });
 }
