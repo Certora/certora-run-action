@@ -30,7 +30,7 @@ for conf_line in "${confs[@]}"; do
   cat "$conf_file"
   tmp_conf=$(mktemp)
   json-strip-comments --help
-  json-strip-comments -e "$conf_file" -o "$tmp_conf"
+  json-strip-comments -e -o "$tmp_conf" < "$conf_file"
   if [[ "$(jq 'has("wait_for_results")' "$tmp_conf")" == 'true' ]]; then
     jq 'del(.wait_for_results)' "$tmp_conf" > "$conf_file"
   else
