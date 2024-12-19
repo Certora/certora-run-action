@@ -186,7 +186,7 @@ runs:
         fi
 
     - name: Install Java
-      if: ${{ inputs.install-java == "true" }}
+      if: ${{ inputs.install-java == 'true' }}
       uses: actions/setup-java@v4
       with:
         java-version: "21"

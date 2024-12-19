@@ -29,7 +29,7 @@ for conf_line in "${confs[@]}"; do
   echo "Sanitizing $conf_file"
   tmp_conf=$(mktemp)
   json-strip-comments -e -o "$tmp_conf" "$conf_file"
-  if [[ $(jq 'has("wait_for_results")' "$tmp_conf") == "true" ]]; then
+  if [[ "$(jq 'has("wait_for_results")' "$tmp_conf")" == 'true' ]]; then
     jq 'del(.wait_for_results)' "$tmp_conf" > "$conf_file"
   else
     mv "$tmp_conf" "$conf_file"
@@ -43,7 +43,7 @@ for conf_line in "${confs[@]}"; do
   mkdir -p "$(dirname "$LOG_FILE")"
   logs+=("$LOG_FILE")
 
-  if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "true" ]]; then
+  if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
     conf_parts+=("--compilation_steps_only")
   fi
 
