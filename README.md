@@ -3,12 +3,10 @@
 This repository contains Certora Run GitHub Action that allows you to run Certora Prover
 on your contracts in parallel, receive the results as a comment on the pull request.
 
-Currently, it's an alpha release.
-
 ## Usage
 
 To use this action, add the [Certora Run Application] to the repository and add
-following to your GitHub Actions workflow:
+the following to your GitHub Actions workflow:
 
 ```yaml
 jobs:
@@ -69,7 +67,8 @@ besides the permissions, the action requires the following secrets:
 - `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
-- `compilation-steps-only` - Only compile the contracts (optional). Default is `false`.
+- `compilation-steps-only` - Compile the spec and the code without sending a
+  verification request to the cloud (optional). Default is `false`.
 - `certora-key` - API key for Certora Prover.
 
 ### Comments on the Pull Request
@@ -108,7 +107,11 @@ act workflow_dispatch \
     --container-architecture=linux/amd64
 ```
 
+For testing please create a PR using [Certora Action Test] repository. The PR should
+start several workflows on all of our environments.
+
 [act]: https://github.com/nektos/act
 [nix]: https://nixos.org/
 [direnv]: https://github.com/direnv/direnv
 [Certora Run Application]: https://github.com/apps/certora-run
+[Certora Action Test]: https://github.com/Certora/certora-run-action-test

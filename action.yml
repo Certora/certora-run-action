@@ -2,7 +2,7 @@
 name: Certora Run Action
 description: |-
   Certora Run Action submits prover jobs to Certora Cloud for verification and returns a
-  report with aggreaged results.
+  report with aggregated results.
 
 branding:
   color: blue
