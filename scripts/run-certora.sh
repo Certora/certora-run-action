@@ -13,6 +13,8 @@ IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
+common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;h;$!d' | tr -d '\n')"
+
 current_dir="$(pwd)"
 
 for conf_line in "${confs[@]}"; do
@@ -35,7 +37,7 @@ for conf_line in "${confs[@]}"; do
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
-  LOG_FILE="$(printf "%s" "${CERTORA_LOG_DIR}${conf_file}-${RAND_SUFF}.log" | tr -s '/')"
+  LOG_FILE="$(printf "%s" "${CERTORA_LOG_DIR}${conf_file#"$common_prefix"}-${RAND_SUFF}.log" | tr -s '/')"
   mkdir -p "$(dirname "$LOG_FILE")"
   logs+=("$LOG_FILE")
 
@@ -74,10 +76,11 @@ failed_jobs=0
 for i in "${!pids[@]}"; do
   ret=0
   wait "${pids[i]}" || ret=$?
+  conf="${configs[i]}"
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
     ((failed_jobs++)) || true
-    echo "| ${configs[i]} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
   else
     if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
         STATUS="Compiled"
@@ -93,7 +96,7 @@ for i in "${!pids[@]}"; do
         MD_LINK="[link]($LINK)"
     fi
 
-    echo "| ${configs[i]} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
 
   fi
 done
