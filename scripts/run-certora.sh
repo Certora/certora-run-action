@@ -19,10 +19,11 @@ current_dir="$(pwd)"
 
 for conf_line in "${confs[@]}"; do
 
-  if [[ ${#conf_line} -gt $MAX_MSG_LEN ]]; then
-    MSG_CONF="${conf_line: -$REMAINING_LEN}"
+  short_conf_line="${conf_line#"$common_prefix"}"
+  if [[ ${#short_conf_line} -gt $MAX_MSG_LEN ]]; then
+    MSG_CONF="${short_conf_line: -$REMAINING_LEN}"
   else
-    MSG_CONF="$conf_line"
+    MSG_CONF="$short_conf_line"
   fi
 
   conf_parts=()
