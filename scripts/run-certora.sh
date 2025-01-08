@@ -13,6 +13,8 @@ IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
+current_dir="$(pwd)"
+
 for conf_line in "${confs[@]}"; do
 
   if [[ ${#conf_line} -gt $MAX_MSG_LEN ]]; then
@@ -25,16 +27,11 @@ for conf_line in "${confs[@]}"; do
   eval "conf_parts=($conf_line)"
   conf_file="${conf_parts[0]}"
 
-  echo "Sanitizing $conf_file"
-  tmp_conf=$(mktemp)
-  json-strip-comments -e -o "$tmp_conf" < "$conf_file"
-  if [[ "$(jq 'has("wait_for_results")' "$tmp_conf")" == 'true' ]]; then
-    jq 'del(.wait_for_results)' "$tmp_conf" > "$conf_file"
-  else
-    mv "$tmp_conf" "$conf_file"
-  fi
-
   echo "Starting '$conf_line' with message: $MSG_CONF"
+
+  # Create temporal directory for isolated executions
+  run_dir="$(mktemp -d)"
+  cp -lRP "$current_dir/." "$run_dir/"
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
@@ -46,11 +43,12 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--compilation_steps_only")
   fi
 
+  cd "$run_dir" || continue
+
   uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
     --server "$CERTORA_SERVER" \
     --group_id "$GROUP_ID" \
-    --send_only \
     --wait_for_results none \
     >"$LOG_FILE" 2>&1 &
 
@@ -58,6 +56,8 @@ for conf_line in "${confs[@]}"; do
   configs+=("$conf_line")
 
   ((jobs++)) || true
+
+  cd "$current_dir" || exit 1
 done
 
 cat >"$CERTORA_REPORT_FILE" <<EOF
