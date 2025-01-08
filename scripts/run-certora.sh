@@ -13,6 +13,10 @@ IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
+# Sed script to extract the common prefix
+# For the first line, copy pattern space to hold space and delete the pattern space
+# Append a newline and the hold space to the pattern space, capture the common prefix
+# Copy the pattern space to the hold space and delete the pattern space until the last line
 common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;h;$!d' | tr -d '\n')"
 
 current_dir="$(pwd)"
