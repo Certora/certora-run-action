@@ -42,7 +42,7 @@ for conf_line in "${confs[@]}"; do
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
-  LOG_FILE="$(printf "%s" "${CERTORA_LOG_DIR}${conf_file#"$common_prefix"}-${RAND_SUFF}.log" | tr -s '/')"
+  LOG_FILE="$(printf "%s" "${CERTORA_LOG_DIR}${conf_file}-${RAND_SUFF}.log" | tr -s '/')"
   mkdir -p "$(dirname "$LOG_FILE")"
   logs+=("$LOG_FILE")
 
