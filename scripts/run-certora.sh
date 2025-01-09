@@ -13,28 +13,32 @@ IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
+# Sed script to extract the common prefix
+# For the first line, copy pattern space to hold space and delete the pattern space
+# Append a newline and the hold space to the pattern space, capture the common prefix
+# Copy the pattern space to the hold space and delete the pattern space until the last line
+common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;h;$!d' | tr -d '\n')"
+
+current_dir="$(pwd)"
+
 for conf_line in "${confs[@]}"; do
 
-  if [[ ${#conf_line} -gt $MAX_MSG_LEN ]]; then
-    MSG_CONF="${conf_line: -$REMAINING_LEN}"
+  short_conf_line="${conf_line#"$common_prefix"}"
+  if [[ ${#short_conf_line} -gt $MAX_MSG_LEN ]]; then
+    MSG_CONF="${short_conf_line: -$REMAINING_LEN}"
   else
-    MSG_CONF="$conf_line"
+    MSG_CONF="$short_conf_line"
   fi
 
   conf_parts=()
   eval "conf_parts=($conf_line)"
   conf_file="${conf_parts[0]}"
 
-  echo "Sanitizing $conf_file"
-  tmp_conf=$(mktemp)
-  json-strip-comments -e -o "$tmp_conf" < "$conf_file"
-  if [[ "$(jq 'has("wait_for_results")' "$tmp_conf")" == 'true' ]]; then
-    jq 'del(.wait_for_results)' "$tmp_conf" > "$conf_file"
-  else
-    mv "$tmp_conf" "$conf_file"
-  fi
-
   echo "Starting '$conf_line' with message: $MSG_CONF"
+
+  # Create temporal directory for isolated executions
+  run_dir="$(mktemp -d)"
+  cp -lRP "$current_dir/." "$run_dir/"
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
@@ -46,11 +50,12 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--compilation_steps_only")
   fi
 
+  cd "$run_dir" || continue
+
   uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
     --server "$CERTORA_SERVER" \
     --group_id "$GROUP_ID" \
-    --send_only \
     --wait_for_results none \
     >"$LOG_FILE" 2>&1 &
 
@@ -58,6 +63,8 @@ for conf_line in "${confs[@]}"; do
   configs+=("$conf_line")
 
   ((jobs++)) || true
+
+  cd "$current_dir" || exit 1
 done
 
 cat >"$CERTORA_REPORT_FILE" <<EOF
@@ -74,10 +81,11 @@ failed_jobs=0
 for i in "${!pids[@]}"; do
   ret=0
   wait "${pids[i]}" || ret=$?
+  conf="${configs[i]}"
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
     ((failed_jobs++)) || true
-    echo "| ${configs[i]} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
   else
     if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
         STATUS="Compiled"
@@ -93,7 +101,7 @@ for i in "${!pids[@]}"; do
         MD_LINK="[link]($LINK)"
     fi
 
-    echo "| ${configs[i]} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
 
   fi
 done

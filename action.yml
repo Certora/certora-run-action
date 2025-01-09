@@ -177,19 +177,6 @@ runs:
           "${{ inputs.solc-remove-version-prefix }}" \
           "${{ inputs.solc-versions }}"
 
-    - name: Download Json Comment Remover
-      shell: bash
-      run: |
-        if [[ ! -f "/opt/solc-bin/json-strip-comments" ]]; then
-          curl -L \
-            -H "Accept: application/octet-stream" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -o "/opt/solc-bin/json-strip-comments" \
-            "https://api.github.com/repos/jc21/json-strip-comments/releases/assets/63648796"
-
-          chmod +x /opt/solc-bin/json-strip-comments
-        fi
-
     - name: Install Java
       if: ${{ inputs.install-java == 'true' }}
       uses: actions/setup-java@v4
