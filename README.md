@@ -17,11 +17,12 @@ jobs:
       statuses: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - uses: Certora/certora-run-action@main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: Certora/certora-run-action@v1
         with:
+          # Add your configurations as lines where each line is a separate configuration.
+          # Tou can specify additional options for each configuration by adding them after the configuration.
           configurations: |-
             tests/conf-verified.conf
             tests/conf-verified.conf --rule monotone --method "counter()"
@@ -44,6 +45,93 @@ results.
 
 Both solidity compilers and `certora-cli` dependencies are cached between runs.
 
+Example:
+
+```yaml
+name: Certora Prover Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Compilation step to verify the correctness of the specs
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # (Optional) Add installation steps for your project
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install
+
+      # (Optional) Run Certora munge script
+      - name: Certora munge
+        run: ./certora/scripts/munge.sh
+
+      # Compile Certora Specs
+      - uses: Certora/certora-run-action@v1
+        with:
+          # Add your configurations as lines where each line is a separate configuration.
+          # Tou can specify additional options for each configuration by adding them after the configuration.
+          configurations: |-
+            tests/conf-verified.conf
+            tests/conf-verified.conf --rule monotone --method "counter()"
+            tests/conf-verified.conf --rule invertible
+            tests/conf-verified.conf --method "counter()"
+          solc-versions: 0.7.6 0.8.1
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+          compilation-steps-only: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify:
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # (Optional) Add installation steps for your project
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install
+
+      # (Optional) Run Certora munge script
+      - name: Certora munge
+        run: ./certora/scripts/munge.sh
+
+      # Run Certora Prover
+      - uses: Certora/certora-run-action@v1
+        with:
+          # Add your configurations as lines where each line is a separate configuration.
+          # Tou can specify additional options for each configuration by adding them after the configuration.
+          configurations: |-
+            tests/conf-verified.conf
+            tests/conf-verified.conf --rule monotone --method "counter()"
+            tests/conf-verified.conf --rule invertible
+            tests/conf-verified.conf --method "counter()"
+          solc-versions: 0.7.6 0.8.1
+          job-name: "Verified Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ### Permissions
 
 This action requires the following permissions:
@@ -60,7 +148,7 @@ besides the permissions, the action requires the following secrets:
 
 - `configurations` - List of configuration files to run.
 - `solc-versions` - List of Solidity versions to download.
-- `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used.
+- `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
 - `use-alpha` - Use the alpha version of the `certora-cli` (optional).
 - `use-beta` - Use the beta version of the `certora-cli` (optional).
 - `server` - Server to run the tests on (optional). Default is `production`.
