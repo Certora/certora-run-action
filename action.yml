@@ -159,7 +159,7 @@ runs:
           fi
         CERT_CLI_PACKAGE="${CERT_CLI_PACKAGE}${CERT_CLI_VERSION:+==$CERT_CLI_VERSION}"
         echo "CERT_CLI_PACKAGE=$CERT_CLI_PACKAGE" >> $GITHUB_ENV
-        echo "Running with version "
+        echo "Using version $CERT_CLI_PACKAGE"
         uv tool install "$CERT_CLI_PACKAGE"
       env:
         CERT_CLI_VERSION: ${{ inputs.cli-version }}
