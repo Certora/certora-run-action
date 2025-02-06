@@ -152,17 +152,17 @@ runs:
       shell: bash
       run: |
         CERT_CLI_PACKAGE="certora-cli"
-          if [ '${{ inputs.use_alpha }}' == 'true' ]; then
+          if [ '${{ inputs.use-alpha }}' == 'true' ]; then
             CERT_CLI_PACKAGE="certora-cli-alpha"
-          elif [ '${{ inputs.use_beta }}' == 'true' ]; then
+          elif [ '${{ inputs.use-beta }}' == 'true' ]; then
             CERT_CLI_PACKAGE="certora-cli-beta"
           fi
         CERT_CLI_PACKAGE="${CERT_CLI_PACKAGE}${CERT_CLI_VERSION:+==$CERT_CLI_VERSION}"
         echo "CERT_CLI_PACKAGE=$CERT_CLI_PACKAGE" >> $GITHUB_ENV
-        echo "Running with version $CERT_CLI_PACKAGE"
+        echo "Running with version "
         uv tool install "$CERT_CLI_PACKAGE"
       env:
-        CERT_CLI_VERSION: ${{ inputs.cli_version }}
+        CERT_CLI_VERSION: ${{ inputs.cli-version }}
 
     - name: Cache Solidity Binaries
       id: solc-cache
