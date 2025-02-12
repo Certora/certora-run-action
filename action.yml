@@ -128,7 +128,7 @@ runs:
         echo "MESSAGE_SUFFIX=GH:${{ github.repository }}/${SHORT_COMMIT_SHA}" >> "$GITHUB_ENV"
         echo "short_sha=${SHORT_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
 
-        GROUP_ID="$(${{ inputs.group-id }} || cat /proc/sys/kernel/random/uuid)"
+        GROUP_ID="${{ inputs.group-id || "$(cat /proc/sys/kernel/random/uuid)" }}"
         echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
         echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
 
