@@ -230,7 +230,7 @@ runs:
       id: upload-logs
       if: always()
       with:
-        name: certora-run-logs-${{ steps.setup-env.outputs.group_id }}-${{ github.run_id }}
+        name: certora-run-logs-${{ steps.setup-env.outputs.group_id }}-${{ github.job_id }}
         path: /tmp/certora-logs/*
 
     - name: Add Summary To Report
