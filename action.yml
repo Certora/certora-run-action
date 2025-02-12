@@ -86,7 +86,9 @@ inputs:
       The group id for the job. Default is an auto-generated uuid.
 
 outputs:
-  group-id: ${{ steps.setup-env.outputs.group_id }}
+  group-id:
+    description: "The group id used to start all jobs."
+    value: ${{ steps.setup-env.outputs.group_id }}
 
 runs:
   using: "composite"
