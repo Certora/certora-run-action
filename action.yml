@@ -80,6 +80,15 @@ inputs:
     default: "false"
     description: |-
       Whether to only run the compilation steps. Default is `false`.
+  group-id:
+    required: false
+    description: |-
+      The group id for the job. Default is an auto-generated uuid.
+
+outputs:
+  group-id:
+    description: "The group id used to start all jobs."
+    value: ${{ steps.setup-env.outputs.group_id }}
 
 runs:
   using: "composite"
@@ -119,7 +128,7 @@ runs:
         echo "MESSAGE_SUFFIX=GH:${{ github.repository }}/${SHORT_COMMIT_SHA}" >> "$GITHUB_ENV"
         echo "short_sha=${SHORT_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
 
-        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
+        GROUP_ID="${{ inputs.group-id || '$(cat /proc/sys/kernel/random/uuid)' }}"
         echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
         echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
 
@@ -221,7 +230,7 @@ runs:
       id: upload-logs
       if: always()
       with:
-        name: certora-run-logs-${{ steps.setup-env.outputs.group_id }}-${{ github.run_id }}
+        name: certora-run-logs-${{ steps.setup-env.outputs.group_id }}-${{ github.job }}
         path: /tmp/certora-logs/*
 
     - name: Add Summary To Report
