@@ -40,15 +40,15 @@ for version in $VERSIONS; do
     # Verify the binary
     chmod +x "$BIN_PATH"
     "solc$use_version" --version
+  fi
 
-    # Create a symlink for the first version if the binary name isn't already 'solc'
-    if [ "$FIRST_VERSION" = true ] && [ "$BIN_PATH" != "/opt/solc-bin/solc" ]; then
-      rm -f /opt/solc-bin/solc # Remove existing symlink if it exists
-      ln -s "$BIN_PATH" /opt/solc-bin/solc
-      echo "Created symlink: solc -> solc$use_version"
-      solc --version
-      FIRST_VERSION=false
-    fi
+  # Create a symlink for the first version if the binary name isn't already 'solc'
+  if [ "$FIRST_VERSION" = true ] && [ "$BIN_PATH" != "/opt/solc-bin/solc" ]; then
+    rm -f /opt/solc-bin/solc # Remove existing symlink if it exists
+    ln -s "$BIN_PATH" /opt/solc-bin/solc
+    echo "Created symlink: solc -> solc$use_version"
+    solc --version
+    FIRST_VERSION=false
   fi
 done
 
