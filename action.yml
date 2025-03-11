@@ -41,7 +41,8 @@ inputs:
   solc-versions:
     required: true
     description: |-
-      List of Solidity versions to use for the `certoraRun` command.
+      List of Solidity versions to use for the `certoraRun` command. The first version
+      in the list will be used as the default version (solc binary).
 
       Example:
 
