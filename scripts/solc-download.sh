@@ -9,6 +9,8 @@ JQ_FILTER='.assets[] | select(.name == "solc-static-linux") | .url'
 AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
 
 VERSIONS="${*:2}"
+FIRST_VERSION=true # Flag to track the first version
+
 for version in $VERSIONS; do
   version="${version#v}"
   if [ -z "$REMOVE_PREFIX" ]; then
@@ -23,12 +25,12 @@ for version in $VERSIONS; do
     echo "Downloading Solidity $version"
     RELEASE_DETAIL=$(curl -sH "$AUTH_HEADER" "${GH_LINK}${version}")
 
-    if [[ -z "$RELEASE_DETAIL" || $(jq 'has("assets")' <<< "$RELEASE_DETAIL") == "false" ]]; then
+    if [[ -z "$RELEASE_DETAIL" || $(jq 'has("assets")' <<<"$RELEASE_DETAIL") == "false" ]]; then
       echo "Failed to fetch release details for Solidity $version"
       echo "$RELEASE_DETAIL"
       exit 1
     fi
-    BIN_LINK=$(jq -r "$JQ_FILTER" <<< "$RELEASE_DETAIL")
+    BIN_LINK=$(jq -r "$JQ_FILTER" <<<"$RELEASE_DETAIL")
 
     curl -L \
       -H "Accept: application/octet-stream" \
@@ -38,6 +40,15 @@ for version in $VERSIONS; do
     # Verify the binary
     chmod +x "$BIN_PATH"
     "solc$use_version" --version
+
+    # Create a symlink for the first version if the binary name isn't already 'solc'
+    if [ "$FIRST_VERSION" = true ] && [ "$BIN_PATH" != "/opt/solc-bin/solc" ]; then
+      rm -f /opt/solc-bin/solc # Remove existing symlink if it exists
+      ln -s "$BIN_PATH" /opt/solc-bin/solc
+      echo "Created symlink: solc -> solc$use_version"
+      solc --version
+      FIRST_VERSION=false
+    fi
   fi
 done
 
