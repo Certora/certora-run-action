@@ -147,7 +147,7 @@ besides the permissions, the action requires the following secrets:
 ### Inputs
 
 - `configurations` - List of configuration files to run.
-- `solc-versions` - List of Solidity versions to download. The first version in the list will be used as the default version (solc binary).
+- `solc-versions` - List of Solidity versions to download. The first version in the list will also be available as `solc` in the environment.
 - `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
 - `use-alpha` - Use the alpha version of the `certora-cli` (optional).
 - `use-beta` - Use the beta version of the `certora-cli` (optional).
