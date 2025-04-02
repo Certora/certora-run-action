@@ -90,7 +90,7 @@ for i in "${!pids[@]}"; do
     if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
         STATUS="Compiled"
     else
-        STATUS="Submited"
+        STATUS="Submitted"
     fi
 
     LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
