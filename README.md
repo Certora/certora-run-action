@@ -157,6 +157,7 @@ besides the permissions, the action requires the following secrets:
 - `install-java` - Install Java for type checking (optional). Default is `true`.
 - `compilation-steps-only` - Compile the spec and the code without sending a
   verification request to the cloud (optional). Default is `false`.
+- `comment-fail-only` - Add a report comment to the pr only when the job fail (optional). Default it `true`.
 - `certora-key` - API key for Certora Prover.
 
 ### Comments on the Pull Request

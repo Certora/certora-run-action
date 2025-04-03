@@ -82,7 +82,7 @@ inputs:
     description: |-
       Whether to only run the compilation steps. Default is `false`.
   comment-fail-only:
-    default: "false"
+    default: "true"
     description: |-
       Add a comment to the PR only if the run fail.
 
