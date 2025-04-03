@@ -81,6 +81,10 @@ inputs:
     default: "false"
     description: |-
       Whether to only run the compilation steps. Default is `false`.
+  comment-fail-only:
+    default: "true"
+    description: |-
+      Add a comment to the PR only if the run fail.
 
 runs:
   using: "composite"
@@ -232,7 +236,7 @@ runs:
         echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> "${{ steps.setup-env.outputs.report_file }}"
 
     - name: Add report comment
-      if: always()
+      if: ${{ failure() || inputs.comment-fail-only == 'false' }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: ${{ steps.setup-env.outputs.group_id }}
