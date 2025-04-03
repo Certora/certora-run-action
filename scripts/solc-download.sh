@@ -42,6 +42,16 @@ for version in $VERSIONS; do
     "solc$use_version" --version
   fi
 
+  # create two symlinks for the binary, solc$version and solc-$version if they don't exist
+  if [ ! -e "/opt/solc-bin/solc$version" ]; then
+    ln -s "$BIN_PATH" "/opt/solc-bin/solc$version"
+    echo "Created symlink: solc$version -> $BIN_PATH"
+  fi
+  if [ ! -e "/opt/solc-bin/solc-$version" ]; then
+    ln -s "$BIN_PATH" "/opt/solc-bin/solc-$version"
+    echo "Created symlink: solc-$version -> $BIN_PATH"
+  fi
+
   # Create a symlink for the first version if the binary name isn't already 'solc'
   if [ "$FIRST_VERSION" = true ] && [ "$BIN_PATH" != "/opt/solc-bin/solc" ]; then
     rm -f /opt/solc-bin/solc # Remove existing symlink if it exists
