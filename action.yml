@@ -196,7 +196,7 @@ runs:
       shell: bash
       run: |
         RUN_CERTORA="${{ github.action_path }}/scripts/run-certora.sh"
-        if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "true" ]]; then
+        if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "false" ]]; then
           CERTORA_COMPILATION_STEPS_ONLY=true bash "$RUN_CERTORA" && \
           CERTORA_COMPILATION_STEPS_ONLY=false bash "$RUN_CERTORA"
         else
