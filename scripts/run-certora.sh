@@ -9,15 +9,24 @@ pids=()
 configs=()
 logs=()
 
-IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
+# Remove leading spaces, comments, and empty lines
+CERTORA_CONFIGURATIONS="$(sed -r 's/^\s+//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<<"$CERTORA_CONFIGURATIONS")"
+
+IFS=$'\n' read -rd '' -a confs <<<"$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
-# Sed script to extract the common prefix
-# For the first line, copy pattern space to hold space and delete the pattern space
-# Append a newline and the hold space to the pattern space, capture the common prefix
-# Copy the pattern space to the hold space and delete the pattern space until the last line
-common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;h;$!d' | tr -d '\n')"
+if [[ ${#confs[@]} -gt 1 ]]; then
+  # Extract the common prefix from the configurations
+  # Sed script to extract the common prefix
+  # For the first line, copy pattern space to hold space and delete the pattern space
+  # Append a newline and the hold space to the pattern space, capture the common prefix
+  # Copy the pattern space to the hold space and delete the pattern space until the last line
+  common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' | tr -d '\n')"
+else
+  # Keep the file name only
+  common_prefix="$(echo "${confs[0]}" | sed -r 's/^[^ ]*\///g')"
+fi
 
 current_dir="$(pwd)"
 
@@ -85,30 +94,30 @@ for i in "${!pids[@]}"; do
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
     ((failed_jobs++)) || true
-    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >>"$CERTORA_REPORT_FILE"
   else
     if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
-        STATUS="Compiled"
+      STATUS="Compiled"
     else
-        STATUS="Submitted"
+      STATUS="Submitted"
     fi
 
     LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
     if [[ -z "$LINK" ]]; then
-        ((jobs--)) || true
-        MD_LINK="-"
+      ((jobs--)) || true
+      MD_LINK="-"
     else
-        MD_LINK="[link]($LINK)"
+      MD_LINK="[link]($LINK)"
     fi
 
-    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >>"$CERTORA_REPORT_FILE"
 
   fi
 done
 
 # Add jobs to output
-echo "total_jobs=$jobs" >> "$GITHUB_OUTPUT"
-echo "failed_jobs=$failed_jobs" >> "$GITHUB_OUTPUT"
+echo "total_jobs=$jobs" >>"$GITHUB_OUTPUT"
+echo "failed_jobs=$failed_jobs" >>"$GITHUB_OUTPUT"
 
 # Remove empty log files
 find "$CERTORA_LOG_DIR" -type f -empty -delete
@@ -121,7 +130,6 @@ cat >>"$CERTORA_REPORT_FILE" <<EOF
 - $failed_jobs jobs failed
 
 EOF
-
 
 if [[ $failed_jobs -ne 0 ]]; then
   echo "Some configurations failed! Please check the logs."
