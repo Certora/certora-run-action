@@ -21,8 +21,8 @@ jobs:
         uses: actions/checkout@v4
       - uses: Certora/certora-run-action@v1
         with:
-          # Add your configurations as lines, where each line is separate.
-          # You can specify additional options for each configuration by adding them after the configuration.
+          # Add your configurations as lines, each line is separated.
+          # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
             tests/conf-verified.conf
             tests/conf-verified.conf --rule monotone --method "counter()"
@@ -81,8 +81,8 @@ jobs:
       # Run Certora Prover
       - uses: Certora/certora-run-action@v1
         with:
-          # Add your configurations as lines, where each line is separate.
-          # You can specify additional options for each configuration by adding them after the configuration.
+          # Add your configurations as lines, each line is separated.
+          # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
             tests/conf-verified.conf
             tests/conf-verified.conf --rule monotone --method "counter()"
