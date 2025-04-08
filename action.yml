@@ -98,13 +98,6 @@ runs:
         if [[ -z "${{ inputs.certora-key }}" ]]; then
           MESSAGE="Certora key is missing. Please provide a valid key as a secret input.
 
-          Example:
-
-          ```yaml
-          with:
-            certora-key: ${{ '$' }}{{ secrets.CERTORAKEY }}
-          ```
-
           For more details please refer to the documentation at https://github.com/Certora/certora-run-action"
 
           echo "::error title=Certora Key is missing::$MESSAGE"
@@ -114,13 +107,6 @@ runs:
         if [[ -z "$GITHUB_TOKEN" ]]; then
 
           MESSAGE="GitHub token is missing. Please provide a valid token as an environment variable.
-
-          Example:
-
-          ```yaml
-          env:
-            GITHUB_TOKEN: ${{ '$' }}{{ secrets.GITHUB_TOKEN }}
-          ```
 
           For more details please refer to the documentation at https://github.com/Certora/certora-run-action"
 
