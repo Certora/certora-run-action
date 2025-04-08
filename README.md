@@ -21,8 +21,8 @@ jobs:
         uses: actions/checkout@v4
       - uses: Certora/certora-run-action@v1
         with:
-          # Add your configurations as lines where each line is a separate configuration.
-          # Tou can specify additional options for each configuration by adding them after the configuration.
+          # Add your configurations as lines, each line is separated.
+          # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
             tests/conf-verified.conf
             tests/conf-verified.conf --rule monotone --method "counter()"
@@ -39,7 +39,7 @@ This action will download all the specified Solidity versions, start `certora-cl
 every configuration file, and run the tests asynchronously. If one of the configurations
 fails to start, the action will be marked as failed, and all other jobs will continue to run.
 
-Once all the tests are finished `Certora Run GitHub Application` will mark the commit
+Once all the tests are finished, `Certora Run GitHub Application` will mark the commit
 statuses as either `success` or `failure` and comment on the pull request with the
 results.
 
@@ -60,45 +60,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Compilation step to verify the correctness of the specs
-  compile:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      # (Optional) Add installation steps for your project
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-      - name: Install dependencies
-        run: npm install
-
-      # (Optional) Run Certora munge script
-      - name: Certora munge
-        run: ./certora/scripts/munge.sh
-
-      # Compile Certora Specs
-      - uses: Certora/certora-run-action@v1
-        with:
-          # Add your configurations as lines where each line is a separate configuration.
-          # Tou can specify additional options for each configuration by adding them after the configuration.
-          configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
-          solc-versions: 0.7.6 0.8.1
-          job-name: "Verified Rules"
-          certora-key: ${{ secrets.CERTORAKEY }}
-          compilation-steps-only: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   verify:
     runs-on: ubuntu-latest
-    needs: compile
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -118,8 +81,8 @@ jobs:
       # Run Certora Prover
       - uses: Certora/certora-run-action@v1
         with:
-          # Add your configurations as lines where each line is a separate configuration.
-          # Tou can specify additional options for each configuration by adding them after the configuration.
+          # Add your configurations as lines, each line is separated.
+          # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
             tests/conf-verified.conf
             tests/conf-verified.conf --rule monotone --method "counter()"
@@ -149,7 +112,7 @@ besides the permissions, the action requires the following secrets:
 - `configurations` - List of configuration files to run.
 - `solc-versions` - List of Solidity versions to download. The first version in the list
   will also be available as `solc` in the environment. Each version will be available as
-  as both `solc<version>` and `solc-<version>` in the environment.
+  both `solc<version>` and `solc-<version>` in the environment.
 - `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
 - `use-alpha` - Use the alpha version of the `certora-cli` (optional).
 - `use-beta` - Use the beta version of the `certora-cli` (optional).
@@ -188,7 +151,7 @@ In order to set up the environment, follow these steps:
 direnv allow
 ```
 
-Then you can run the action with the following command:
+Then, you can run the action with the following command:
 
 ```bash
 act workflow_dispatch \
@@ -198,7 +161,7 @@ act workflow_dispatch \
     --container-architecture=linux/amd64
 ```
 
-For testing please create a PR using [Certora Action Test] repository. The PR should
+For testing, please create a PR using [Certora Action Test] repository. The PR should
 start several workflows on all of our environments.
 
 [act]: https://github.com/nektos/act
