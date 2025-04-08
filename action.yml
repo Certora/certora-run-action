@@ -85,11 +85,31 @@ inputs:
   comment-fail-only:
     default: "true"
     description: |-
-      Add a comment to the PR only if the run fail.
+      Add a comment to the PR only if the run fails.
 
 runs:
   using: "composite"
   steps:
+    - name: Verify Certora key and GitHub Token
+      shell: bash
+      run: |
+        FAILED=false
+        DOC_LINK="For more details please refer to the documentation at https://github.com/Certora/certora-run-action."
+        if [[ -z "${{ inputs.certora-key }}" ]]; then
+          MESSAGE="Please provide a valid Certora key as a secret input. $DOC_LINK"
+          echo "::error title=Certora Key is missing::$MESSAGE"
+          FAILED=true
+        fi
+
+        if [[ -z "$GITHUB_TOKEN" ]]; then
+          MESSAGE="Please provide a valid GitHub token as an environment variable. $DOC_LINK"
+          echo "::error title=GitHub Token is missing::$MESSAGE"
+          FAILED=true
+        fi
+
+        if [[ "$FAILED" == "true" ]]; then
+          exit 1
+        fi
     - name: Fetch Relevant Commit SHA for the Event
       shell: bash
       run: |
