@@ -85,7 +85,7 @@ inputs:
   comment-fail-only:
     default: "true"
     description: |-
-      Add a comment to the PR only if the run fail.
+      Add a comment to the PR only if the run fails.
 
 runs:
   using: "composite"
@@ -94,7 +94,7 @@ runs:
       shell: bash
       run: |
         if [[ -z "${{ inputs.certora-key }}" ]]; then
-          echo "::error title=Certora Key is missing::Certora key is required to run the prover jobs. Please provide a valid key as an secret input."
+          echo "::error title=Certora Key is missing::Certora key is required to run the prover jobs. Please provide a valid key as a secret input."
           exit 1
         fi
 
