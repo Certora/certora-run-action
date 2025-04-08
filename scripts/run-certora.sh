@@ -25,7 +25,7 @@ if [[ ${#confs[@]} -gt 1 ]]; then
   common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' | tr -d '\n')"
 else
   # Keep the file name only
-  common_prefix="$(echo "${confs[0]}" | sed -r 's/^[^ ]*\///g')"
+  common_prefix="$(echo "${confs[0]}" | sed 's/\(.*\/\)[^\/]*$/\1/')"
 fi
 
 current_dir="$(pwd)"
