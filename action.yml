@@ -94,22 +94,15 @@ runs:
       shell: bash
       run: |
         FAILED=false
-
+        DOC_LINK="For more details please refer to the documentation at https://github.com/Certora/certora-run-action"
         if [[ -z "${{ inputs.certora-key }}" ]]; then
-          MESSAGE="Certora key is missing. Please provide a valid key as a secret input.
-
-          For more details please refer to the documentation at https://github.com/Certora/certora-run-action"
-
+          MESSAGE="Certora key is missing. Please provide a valid key as a secret input. $DOC_LINK"
           echo "::error title=Certora Key is missing::$MESSAGE"
           FAILED=true
         fi
 
         if [[ -z "$GITHUB_TOKEN" ]]; then
-
-          MESSAGE="GitHub token is missing. Please provide a valid token as an environment variable.
-
-          For more details please refer to the documentation at https://github.com/Certora/certora-run-action"
-
+          MESSAGE="GitHub token is missing. Please provide a valid token as an environment variable. $DOC_LINK"
           echo "::error title=GitHub Token is missing::$MESSAGE"
           FAILED=true
         fi
