@@ -37,7 +37,8 @@ for conf_line in "${confs[@]}"; do
   echo "Starting '$conf_line' with message: $MSG_CONF"
 
   # Create temporal directory for isolated executions
-  run_dir="/tmp/$GITHUB_SHA"
+  # Use an md5 hash of the configuration file as the directory name
+  run_dir=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
   mkdir -p "$run_dir"
   cp -lRP "$current_dir/." "$run_dir/"
 
