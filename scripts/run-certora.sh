@@ -38,7 +38,8 @@ for conf_line in "${confs[@]}"; do
 
   # Create temporal directory for isolated executions
   # Use an md5 hash of the configuration file as the directory name
-  run_dir=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  run_dir="/tmp/${conf_hash}"
   mkdir -p "$run_dir"
   cp -lRP "$current_dir/." "$run_dir/"
 
