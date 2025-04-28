@@ -19,7 +19,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: Certora/certora-run-action@v1
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@v1
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
@@ -85,8 +86,9 @@ jobs:
       - name: Certora munge
         run: ./certora/scripts/munge.sh
 
-      # Run Certora Prover
-      - uses: Certora/certora-run-action@v1
+      # Submit verification jobs to Certora Prover
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@v1
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
