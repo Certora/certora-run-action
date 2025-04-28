@@ -10,7 +10,7 @@ the following to your GitHub Actions workflow:
 
 ```yaml
 jobs:
-  certora_run:
+  certora_run_submission:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -48,7 +48,14 @@ Both solidity compilers and `certora-cli` dependencies are cached between runs.
 Example:
 
 ```yaml
-name: Certora Prover Workflow
+name: Certora Prover Submission Workflow
+description: |-
+  This workflow submits Certora Prover jobs on the specified configurations. Once all
+  jobs are successfully submitted, it will add a pending commit status to the commit.
+  This status will be periodically updated with verification results of the jobs along
+  with the verification summary comment on the pull request.
+
+  For more information, please visit https://github.com/certora/certora-run-action.
 
 on:
   push:
@@ -60,7 +67,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify:
+  certora_run_submission:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
