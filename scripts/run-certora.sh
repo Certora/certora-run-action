@@ -41,7 +41,7 @@ for conf_line in "${confs[@]}"; do
   conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
   run_dir="/tmp/${conf_hash}"
   mkdir -p "$run_dir"
-  cp -lRP "$current_dir/." "$run_dir/"
+  cp -lRPn "$current_dir/." "$run_dir/"
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
