@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./action.yml
+      - uses: ./action
         with:
           use-beta: true
           configurations: |-
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./action.yml
+      - uses: ./action
         with:
           configurations: |-
             tests/conf-verified.conf
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./action.yml
+      - uses: ./action
         with:
           configurations: |-
             tests/conf-verified.conf
