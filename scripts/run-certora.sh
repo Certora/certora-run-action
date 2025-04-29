@@ -46,8 +46,11 @@ for conf_line in "${confs[@]}"; do
   echo "Starting '$conf_line' with message: $MSG_CONF"
 
   # Create temporal directory for isolated executions
-  run_dir="$(mktemp -d)"
-  cp -lRP "$current_dir/." "$run_dir/"
+  # Use an md5 hash of the configuration file as the directory name
+  conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  run_dir="/tmp/${conf_hash}"
+  mkdir -p "$run_dir"
+  cp -lRP --update=none "$current_dir/." "$run_dir/"
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
