@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./
+      - name: Fail to Start
+        uses: ./
         with:
           use-beta: true
           configurations: |-
@@ -44,7 +45,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./
+      - name: Violated Rules
+        uses: ./
         with:
           configurations: |-
             tests/conf-verified.conf
@@ -68,7 +70,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
       - run: npm install
-      - uses: ./
+      - name: Verified Rules
+        uses: ./
         with:
           configurations: |-
             tests/conf-verified.conf
