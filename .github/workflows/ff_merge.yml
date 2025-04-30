@@ -3,6 +3,9 @@ on:
   issue_comment:
     types: [created]
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   ff_merge:
     runs-on: ubuntu-latest
