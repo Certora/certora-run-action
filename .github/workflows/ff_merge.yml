@@ -17,8 +17,8 @@ jobs:
       - name: Fetch Variables
         id: pr-variables
         run: |
-          echo "PR_HEAD_REFF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json headRefName --jq '.headRefName')" >> "$GITHUB_OUTPUT"
-          echo "PR_BASE_REFF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json baseRefName --jq '.baseRefName')" >> "$GITHUB_OUTPUT"
+          echo "PR_HEAD_REF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json headRefName --jq '.headRefName')" >> "$GITHUB_OUTPUT"
+          echo "PR_BASE_REF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json baseRefName --jq '.baseRefName')" >> "$GITHUB_OUTPUT"
           echo "PR_AUTHOR=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json author --jq '.author.id')" >> "$GITHUB_OUTPUT"
       - name: "FF Merge"
         run: |
