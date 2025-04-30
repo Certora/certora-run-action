@@ -1,0 +1,28 @@
+name: Fast-Forward Merge
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  ff_merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/ff-merge') && github.event.comment.author_association == 'COLLABORATOR' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch Variables
+        id: pr-variables
+        run: |
+          echo "PR_HEAD_REFF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json headRefName --jq '.headRefName')" >> "$GITHUB_OUTPUT"
+          echo "PR_BASE_REFF=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json baseRefName --jq '.baseRefName')" >> "$GITHUB_OUTPUT"
+          echo "PR_AUTHOR=$(gh pr view '${{ github.event.issue.number }}' --repo '${{ github.repository }}' --json author --jq '.author.id')" >> "$GITHUB_OUTPUT"
+      - name: "FF Merge"
+        run: |
+          git checkout ${{ steps.pr-variables.outputs.PR_HEAD_REF }}
+          git checkout ${{ steps.pr-variables.outputs.PR_BASE_REF }}
+          git merge --ff-only ${{ steps.pr-variables.outputs.PR_HEAD_REF }}
+          git push
