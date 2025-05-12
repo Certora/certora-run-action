@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+env:
+    GH_TOKEN: ${{ github.token }}
+    TAG: ${{ github.ref_name }}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate tag
+        run: |
+          echo "Checking tag: $TAG"
+
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✅ Valid tag format: $TAG"
+          else
+            echo "❌ Invalid tag format: $TAG"
+            exit 1
+          fi
+      - name: Create PR
+        run: |
+          BASE_BRANCH="${TAG:0:2}"
+          HEAD_BRANCH="main"
+          LABEL="release"
+          TITLE="Release a new version"
+          BODY="Update version branch with the recent changes."
+
+          echo "Creating PR for $BASE_BRANCH branch"
+          gh pr create -B "$BASE_BRANCH" -H "$HEAD_BRANCH" -l "$LABEL" -t "$TITLE" -b "$BODY" || true
