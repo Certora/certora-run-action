@@ -22,12 +22,12 @@ jobs:
           if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "✅ Valid tag format: $TAG"
           else
-            echo "❌ Invalid tag format: $TAG"
+            echo "::error file=general.yml,line=22,endLine=22,title=Invalid tag format::❌ Invalid tag format: $TAG"
             exit 1
           fi
       - name: Create PR
         run: |
-          BASE_BRANCH="${TAG:0:2}"
+          BASE_BRANCH="$(echo "$TAG" | sed 's/\..*//')"
           HEAD_BRANCH="main"
           LABEL="release"
           TITLE="Release a new version"
