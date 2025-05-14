@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$DEBUG_LEVEL" -gt 0 ]; then
+  set -x
+fi
+
 REMOVE_PREFIX="$1"
 
 mkdir -p /opt/solc-bin

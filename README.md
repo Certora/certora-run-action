@@ -10,7 +10,7 @@ the following to your GitHub Actions workflow:
 
 ```yaml
 jobs:
-  certora_run:
+  certora_run_submission:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,7 +19,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: Certora/certora-run-action@v1
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@v1
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
@@ -48,7 +49,14 @@ Both solidity compilers and `certora-cli` dependencies are cached between runs.
 Example:
 
 ```yaml
-name: Certora Prover Workflow
+name: Certora Prover Submission Workflow
+description: |-
+  This workflow submits Certora Prover jobs on the specified configurations. Once all
+  jobs are successfully submitted, it will add a pending commit status to the commit.
+  This status will be periodically updated with verification results of the jobs along
+  with the verification summary comment on the pull request.
+
+  For more information, please visit https://github.com/certora/certora-run-action.
 
 on:
   push:
@@ -60,7 +68,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify:
+  certora_run_submission:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -78,8 +86,9 @@ jobs:
       - name: Certora munge
         run: ./certora/scripts/munge.sh
 
-      # Run Certora Prover
-      - uses: Certora/certora-run-action@v1
+      # Submit verification jobs to Certora Prover
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@v1
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.

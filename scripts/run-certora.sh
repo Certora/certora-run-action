@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$DEBUG_LEVEL" -gt 0 ]; then
+  set -x
+fi
+
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
@@ -9,15 +13,24 @@ pids=()
 configs=()
 logs=()
 
-IFS=$'\n' read -rd '' -a confs <<< "$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
+# Remove leading spaces, trailing spaces, comments, and empty lines
+CERTORA_CONFIGURATIONS="$(sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<<"$CERTORA_CONFIGURATIONS")"
+
+IFS=$'\n' read -rd '' -a confs <<<"$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
 
-# Sed script to extract the common prefix
-# For the first line, copy pattern space to hold space and delete the pattern space
-# Append a newline and the hold space to the pattern space, capture the common prefix
-# Copy the pattern space to the hold space and delete the pattern space until the last line
-common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;h;$!d' | tr -d '\n')"
+if [[ ${#confs[@]} -gt 1 ]]; then
+  # Extract the common prefix from the configurations
+  # Sed script to extract the common prefix
+  # For the first line, copy pattern space to hold space and delete the pattern space
+  # Append a newline and the hold space to the pattern space, capture the common prefix
+  # Copy the pattern space to the hold space and delete the pattern space until the last line
+  common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' | tr -d '\n')"
+else
+  # Keep the file name only
+  common_prefix="$(echo "${confs[0]}" | sed 's/\(.*\/\)[^\/]*$/\1/')"
+fi
 
 current_dir="$(pwd)"
 
@@ -37,8 +50,11 @@ for conf_line in "${confs[@]}"; do
   echo "Starting '$conf_line' with message: $MSG_CONF"
 
   # Create temporal directory for isolated executions
-  run_dir="$(mktemp -d)"
-  cp -lRP "$current_dir/." "$run_dir/"
+  # Use an md5 hash of the configuration file as the directory name
+  conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  run_dir="/tmp/${conf_hash}"
+  mkdir -p "$run_dir"
+  cp -lRP --update=none "$current_dir/." "$run_dir/"
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)
@@ -50,7 +66,15 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--compilation_steps_only")
   fi
 
+  if [ "$DEBUG_LEVEL" -gt 1 ]; then
+    conf_parts+=("--debug")
+  fi
+
   cd "$run_dir" || continue
+
+  if [ "$DEBUG_LEVEL" -gt 2 ]; then
+    find . -exec stat -c'%U %G %a %n' {} \;
+  fi
 
   uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
@@ -85,30 +109,30 @@ for i in "${!pids[@]}"; do
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
     ((failed_jobs++)) || true
-    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | Failed ($ret) | - | ${logs[i]#$CERTORA_LOG_DIR} |" >>"$CERTORA_REPORT_FILE"
   else
     if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
-        STATUS="Compiled"
+      STATUS="Compiled"
     else
-        STATUS="Submitted"
+      STATUS="Submitted"
     fi
 
     LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
     if [[ -z "$LINK" ]]; then
-        ((jobs--)) || true
-        MD_LINK="-"
+      ((jobs--)) || true
+      MD_LINK="-"
     else
-        MD_LINK="[link]($LINK)"
+      MD_LINK="[link]($LINK)"
     fi
 
-    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >> "$CERTORA_REPORT_FILE"
+    echo "| ${conf#"$common_prefix"} | $STATUS | $MD_LINK | ${logs[i]#$CERTORA_LOG_DIR} |" >>"$CERTORA_REPORT_FILE"
 
   fi
 done
 
 # Add jobs to output
-echo "total_jobs=$jobs" >> "$GITHUB_OUTPUT"
-echo "failed_jobs=$failed_jobs" >> "$GITHUB_OUTPUT"
+echo "total_jobs=$jobs" >>"$GITHUB_OUTPUT"
+echo "failed_jobs=$failed_jobs" >>"$GITHUB_OUTPUT"
 
 # Remove empty log files
 find "$CERTORA_LOG_DIR" -type f -empty -delete
@@ -121,7 +145,6 @@ cat >>"$CERTORA_REPORT_FILE" <<EOF
 - $failed_jobs jobs failed
 
 EOF
-
 
 if [[ $failed_jobs -ne 0 ]]; then
   echo "Some configurations failed! Please check the logs."

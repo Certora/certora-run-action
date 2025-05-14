@@ -85,11 +85,36 @@ inputs:
   comment-fail-only:
     default: "true"
     description: |-
-      Add a comment to the PR only if the run fail.
+      Add a comment to the PR only if the run fails.
+  debug-level:
+    default: "0"
+    description: |-
+      The debug level to use for the action command. Default is `0`.
+      Options: `0`, `1`, `2`, or `3`.
 
 runs:
   using: "composite"
   steps:
+    - name: Verify Certora key and GitHub Token
+      shell: bash
+      run: |
+        FAILED=false
+        DOC_LINK="For more details please refer to the documentation at https://github.com/Certora/certora-run-action."
+        if [[ -z "${{ inputs.certora-key }}" ]]; then
+          MESSAGE="Please provide a valid Certora key as a secret input. $DOC_LINK"
+          echo "::error title=Certora Key is missing::$MESSAGE"
+          FAILED=true
+        fi
+
+        if [[ -z "$GITHUB_TOKEN" ]]; then
+          MESSAGE="Please provide a valid GitHub token as an environment variable. $DOC_LINK"
+          echo "::error title=GitHub Token is missing::$MESSAGE"
+          FAILED=true
+        fi
+
+        if [[ "$FAILED" == "true" ]]; then
+          exit 1
+        fi
     - name: Fetch Relevant Commit SHA for the Event
       shell: bash
       run: |
@@ -149,7 +174,7 @@ runs:
         echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v4
+      uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
         cache-dependency-glob: .certora-cache-key
@@ -183,6 +208,8 @@ runs:
         bash ${{ github.action_path }}/scripts/solc-download.sh \
           "${{ inputs.solc-remove-version-prefix }}" \
           "${{ inputs.solc-versions }}"
+      env:
+        DEBUG_LEVEL: "${{ inputs.debug-level }}"
 
     - name: Install Java
       if: ${{ inputs.install-java == 'true' }}
@@ -209,6 +236,7 @@ runs:
         CERTORAKEY: "${{ inputs.certora-key }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
         CERTORA_COMPILATION_STEPS_ONLY: "${{ inputs.compilation-steps-only }}"
+        DEBUG_LEVEL: "${{ inputs.debug-level }}"
 
     - name: Add GH Status
       if: always()
