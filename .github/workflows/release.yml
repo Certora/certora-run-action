@@ -25,10 +25,22 @@ jobs:
             echo "::error file=general.yml,line=22,endLine=22,title=Invalid tag format::❌ Invalid tag format: $TAG"
             exit 1
           fi
+      - name: Create a temporary branch
+        id: create_branch
+        run: |
+          TMP_BRANCH="release-${TAG}"
+
+          echo "Creating branch $TMP_BRANCH from tag $TAG"
+
+          git fetch --tags
+          git checkout "tags/$TAG" -b "$TMP_BRANCH"
+          git push origin "$TMP_BRANCH"
+
+          echo "tmp_branch=$TMP_BRANCH" >> "$GITHUB_OUTPUT"
       - name: Create PR
         run: |
           BASE_BRANCH="$(echo "$TAG" | sed 's/\..*//')"
-          HEAD_BRANCH="main"
+          HEAD_BRANCH="${{ steps.create_branch.outputs.tmp_branch }}"
           LABEL="release"
           TITLE="Release a new version"
           BODY="Update version branch with the recent changes."
