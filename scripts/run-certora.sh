@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "$DEBUG_LEVEL" -gt 0 ]; then
+  set -x
+fi
+
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
@@ -62,7 +66,15 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--compilation_steps_only")
   fi
 
+  if [ "$DEBUG_LEVEL" -gt 1 ]; then
+    conf_parts+=("--debug")
+  fi
+
   cd "$run_dir" || continue
+
+  if [ "$DEBUG_LEVEL" -gt 2 ]; then
+    find . -exec stat -c'%U %G %a %n' {} \;
+  fi
 
   uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
