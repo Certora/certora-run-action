@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       head-ref: ${{ steps.pr-variables.outputs.PR_HEAD_REF }}
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/ff-merge') }} # && github.event.comment.author_association == 'COLLABORATOR' }}
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/ff-merge') && github.event.comment.author_association == 'MEMBER' }}
     permissions:
       contents: write
       pull-requests: write
