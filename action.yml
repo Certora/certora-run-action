@@ -46,7 +46,7 @@ inputs:
       Options: `evm` and `solana`.
 
   solc-versions:
-    required: true
+    required: false
     description: |-
       List of Solidity versions to use for the `certoraRun` command. The first version
       in the list will be used as the default version (solc binary). Each version will
@@ -210,6 +210,7 @@ runs:
         key: solc-bin
 
     - name: Download Solidity Binaries
+      if: ${{ inputs.solc-versions }}
       shell: bash
       run: |
         bash ${{ github.action_path }}/scripts/solc-download.sh \
