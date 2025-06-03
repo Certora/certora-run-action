@@ -41,6 +41,7 @@ else
   echo "Unsupported Ecosystem: $CERTORA_ECOSYSTEM"
   exit 1
 fi
+echo "Using cli entrypoint: $CLI_ENTRYPOINT"
 
 current_dir="$(pwd)"
 
