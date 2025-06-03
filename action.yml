@@ -38,6 +38,13 @@ inputs:
         certConfigs/config2.conf
         certConfigs/config3.conf
       ```
+  ecosystem:
+    required: true
+    default: evm
+    description: |-
+      The ecosystem to use for the `certoraRun` command. Default is `evm`.
+      Options: `evm` and `solana`.
+
   solc-versions:
     required: true
     description: |-
@@ -219,6 +226,13 @@ runs:
         java-package: jre
         distribution: zulu
 
+    - name: Install rust for solana
+      if: ${{ inputs.ecosystem == 'solana' }}
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
     - name: Certora Run
       id: certora-run
       shell: bash
@@ -236,6 +250,7 @@ runs:
         CERTORAKEY: "${{ inputs.certora-key }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
         CERTORA_COMPILATION_STEPS_ONLY: "${{ inputs.compilation-steps-only }}"
+        CERTORA_ECOSYSTEM: "${{ inputs.ecosystem }}"
         DEBUG_LEVEL: "${{ inputs.debug-level }}"
 
     - name: Add GH Status

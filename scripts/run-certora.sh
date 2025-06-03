@@ -32,6 +32,16 @@ else
   common_prefix="$(echo "${confs[0]}" | sed 's/\(.*\/\)[^\/]*$/\1/')"
 fi
 
+# Choose the right entrypoint for the ecosystem
+if [[ "$CERTORA_ECOSYSTEM" == "evm" ]]; then
+  CLI_ENTRYPOINT="certoraRun"
+elif [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
+  CLI_ENTRYPOINT="certoraSolanaProver"
+else
+  echo "Unsupported Ecosystem: $CERTORA_ECOSYSTEM"
+  exit 1
+fi
+
 current_dir="$(pwd)"
 
 for conf_line in "${confs[@]}"; do
@@ -76,7 +86,7 @@ for conf_line in "${confs[@]}"; do
     find . -exec stat -c'%U %G %a %n' {} \;
   fi
 
-  uvx --from "$CERT_CLI_PACKAGE" certoraRun "${conf_parts[@]}" \
+  uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
     --server "$CERTORA_SERVER" \
     --group_id "$GROUP_ID" \
