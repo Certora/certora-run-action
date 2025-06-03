@@ -9,7 +9,9 @@ env:
 jobs:
   ff_merge:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/ff-merge') && github.event.comment.author_association == 'COLLABORATOR' }}
+    outputs:
+      head-ref: ${{ steps.pr-variables.outputs.PR_HEAD_REF }}
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/ff-merge') && github.event.comment.author_association == 'MEMBER' }}
     permissions:
       contents: write
       pull-requests: write
@@ -29,3 +31,23 @@ jobs:
           git checkout ${{ steps.pr-variables.outputs.PR_BASE_REF }}
           git merge --ff-only ${{ steps.pr-variables.outputs.PR_HEAD_REF }}
           git push
+
+  remove_branch:
+    needs: ff_merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove branch
+        env:
+          BRANCH_NAME: ${{ needs.ff_merge.outputs.head-ref}}
+        run: |
+          if [[ "$BRANCH_NAME" == release-* ]]; then
+            echo "Removing branch: $BRANCH_NAME"
+
+            # Remove the remote branch
+            git push origin --delete "$BRANCH_NAME"
+          else
+            echo "Branch '$BRANCH_NAME' does not match 'release-*', skipping."
+          fi
