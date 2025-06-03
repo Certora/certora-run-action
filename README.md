@@ -25,10 +25,10 @@ jobs:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           certora-key: ${{ secrets.CERTORAKEY }}
@@ -93,10 +93,10 @@ jobs:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           certora-key: ${{ secrets.CERTORAKEY }}
