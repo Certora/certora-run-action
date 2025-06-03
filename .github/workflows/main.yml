@@ -34,8 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
       - name: Fail to Start
         uses: ./
         with:
@@ -63,8 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
       - name: Violated Rules
         uses: ./
         with:
@@ -82,8 +78,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
       - name: Verified Rules
         uses: ./
         with:
@@ -101,15 +95,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - name: Verified Rules
+      - name: Solana Verified Rules
         uses: ./
         with:
           ecosystem: solana
           configurations: |-
             tests/solana/Default.conf
-          solc-versions: 0.7.6 0.8.1
-          job-name: "Verified Rules"
+          job-name: "Solana Verified Rules"
           server: "vaas-dev"
           certora-key: ${{ secrets.CERTORAKEY }}

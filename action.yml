@@ -229,10 +229,14 @@ runs:
 
     - name: Install rust for solana
       if: ${{ inputs.ecosystem == 'solana' }}
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        override: true
+      shell: bash
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.86.0
+        . $HOME/.cargo/env
+        rustup toolchain install 1.75 1.79
+        cargo install cargo-certora-sbf
+        cargo install just
+        cargo certora-sbf --no-build
 
     - name: Certora Run
       id: certora-run
