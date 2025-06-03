@@ -234,6 +234,7 @@ runs:
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.86.0
         . $HOME/.cargo/env
         cargo install cargo-certora-sbf
+        cargo certora-sbf --no-build
 
     - name: Certora Run
       id: certora-run
