@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
@@ -34,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
       - name: Fail to Start
         uses: ./
         with:
@@ -61,6 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
       - name: Violated Rules
         uses: ./
         with:
