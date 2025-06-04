@@ -104,6 +104,7 @@ jobs:
       - name: Solana Verified Rules
         uses: ./
         with:
+          use-beta: true
           ecosystem: solana
           configurations: |-
             tests/solana/Default.conf
