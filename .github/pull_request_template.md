@@ -1,18 +1,8 @@
 ### ✅ Tests Checklist
 
-- [ ] **`fail_to_start`**
-  - Status: ❌ Failed with compilation error  
-  - Compilation Comment: 🟢 Yes
-  - Results Review: 🔴 No  
-  
-
-- [ ] **`violated_rules`**
-  - Status: ✅ Passed, with violations found  
-  - Compilation Comment: 🔴 No
-  - Results Review: 🟢 Yes  
-
-- [ ] **`verified_rules`**
-  - Status: ✅ Passed without violations  
-  - Compilation Comment: 🔴 No
-  - Results Review: 🟢 Yes  
-  
+| Category              | Status                          | Compilation Comment | Results Review |
+|-----------------------|----------------------------------|----------------------|----------------|
+| **fail_to_start**      | ❌ Failed with compilation error | 🟢 Yes               | 🔴 No          |
+| **violated_rules**     | ✅ Passed, with violations found | 🔴 No                | 🟢 Yes         |
+| **verified_rules**     | ✅ Passed without violations     | 🔴 No                | 🟢 Yes         |
+| **solana_violated_rules** | ✅ Passed, with violations found     | 🔴 No               | 🟢 Yes         |

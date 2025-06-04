@@ -38,8 +38,15 @@ inputs:
         certConfigs/config2.conf
         certConfigs/config3.conf
       ```
-  solc-versions:
+  ecosystem:
     required: true
+    default: evm
+    description: |-
+      The ecosystem to use for the `certoraRun` command. Default is `evm`.
+      Options: `evm` and `solana`.
+
+  solc-versions:
+    required: false
     description: |-
       List of Solidity versions to use for the `certoraRun` command. The first version
       in the list will be used as the default version (solc binary). Each version will
@@ -113,6 +120,12 @@ runs:
         if [[ -z "$GITHUB_TOKEN" ]]; then
           MESSAGE="Please provide a valid GitHub token as an environment variable. $DOC_LINK"
           echo "::error title=GitHub Token is missing::$MESSAGE"
+          FAILED=true
+        fi
+
+        if [[ "${{ inputs.ecosystem }}" == "evm" && -z "${{ inputs.solc-versions }}" ]]; then
+          MESSAGE="Please provide a valid list of Solidity versions when using 'evm' ecosystem. $DOC_LINK"
+          echo "::error title=Solidity Versions are missing::$MESSAGE"
           FAILED=true
         fi
 
@@ -207,6 +220,7 @@ runs:
         key: solc-bin
 
     - name: Download Solidity Binaries
+      if: ${{ inputs.solc-versions }}
       shell: bash
       run: |
         bash ${{ github.action_path }}/scripts/solc-download.sh \
@@ -222,6 +236,15 @@ runs:
         java-version: "21"
         java-package: jre
         distribution: zulu
+
+    - name: Install rust for solana
+      if: ${{ inputs.ecosystem == 'solana' }}
+      shell: bash
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.86.0
+        . $HOME/.cargo/env
+        cargo install cargo-certora-sbf
+        cargo certora-sbf --no-build
 
     - name: Certora Run
       id: certora-run
@@ -241,6 +264,7 @@ runs:
         CERTORAKEY: "${{ inputs.certora-key }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
         CERTORA_COMPILATION_STEPS_ONLY: "${{ inputs.compilation-steps-only }}"
+        CERTORA_ECOSYSTEM: "${{ inputs.ecosystem }}"
         DEBUG_LEVEL: "${{ inputs.debug-level }}"
 
     - name: Add GH Status

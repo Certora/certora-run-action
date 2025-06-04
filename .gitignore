@@ -38,6 +38,7 @@ __pycache__/
 
 # C extensions
 *.so
+!tests/solana/*.so
 
 # Distribution / packaging
 .Python
@@ -64,7 +65,7 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-!tests/*.spec
+!tests/evm/*.spec
 
 # Installer logs
 pip-log.txt

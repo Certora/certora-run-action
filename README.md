@@ -25,10 +25,10 @@ jobs:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           certora-key: ${{ secrets.CERTORAKEY }}
@@ -93,10 +93,10 @@ jobs:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
           configurations: |-
-            tests/conf-verified.conf
-            tests/conf-verified.conf --rule monotone --method "counter()"
-            tests/conf-verified.conf --rule invertible
-            tests/conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           certora-key: ${{ secrets.CERTORAKEY }}
@@ -123,6 +123,7 @@ besides the permissions, the action requires the following secrets:
   will also be available as `solc` in the environment. Each version will be available as
   both `solc<version>` and `solc-<version>` in the environment.
 - `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
+- `ecosystem` - Name of the cli ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
 - `use-alpha` - Use the alpha version of the `certora-cli` (optional).
 - `use-beta` - Use the beta version of the `certora-cli` (optional).
 - `server` - Server to run the tests on (optional). Default is `production`.
