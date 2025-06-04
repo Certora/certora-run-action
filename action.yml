@@ -119,6 +119,12 @@ runs:
           FAILED=true
         fi
 
+        if [[ "${{ inputs.ecosystem }}" == "evm" && -z "${{ inputs.solc-versions }}" ]]; then
+          MESSAGE="Please provide a valid list of Solidity versions when using 'evm' ecosystem. $DOC_LINK"
+          echo "::error title=Solidity Versions are missing::$MESSAGE"
+          FAILED=true
+        fi
+
         if [[ "$FAILED" == "true" ]]; then
           exit 1
         fi
