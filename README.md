@@ -133,6 +133,7 @@ besides the permissions, the action requires the following secrets:
   verification request to the cloud (optional). Default is `false`.
 - `comment-fail-only` - Add a report comment to the pr only when the job fail (optional). Default it `true`.
 - `certora-key` - API key for Certora Prover.
+- `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 
 ### Comments on the Pull Request
 
