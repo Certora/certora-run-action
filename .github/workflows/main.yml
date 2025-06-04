@@ -107,4 +107,5 @@ jobs:
             tests/solana/Default.conf
           job-name: "Solana Verified Rules"
           server: "vaas-dev"
+          comment-fail-only: false
           certora-key: ${{ secrets.CERTORAKEY }}
