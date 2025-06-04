@@ -38,6 +38,7 @@ __pycache__/
 
 # C extensions
 *.so
+!tests/solana/*.so
 
 # Distribution / packaging
 .Python
