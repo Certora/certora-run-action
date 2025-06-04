@@ -5,5 +5,4 @@
 | **fail_to_start**      | ❌ Failed with compilation error | 🟢 Yes               | 🔴 No          |
 | **violated_rules**     | ✅ Passed, with violations found | 🔴 No                | 🟢 Yes         |
 | **verified_rules**     | ✅ Passed without violations     | 🔴 No                | 🟢 Yes         |
-| **solana_verified_rules** | ✅ Passed without violations     | 🟢 Yes               | 🟢 Yes         |
-  
+| **solana_verified_rules** | ✅ Passed, with violations found     | 🔴 No               | 🟢 Yes         |

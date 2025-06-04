@@ -97,17 +97,17 @@ jobs:
           server: "vaas-dev"
           certora-key: ${{ secrets.CERTORAKEY }}
 
-  solana-verified-rules:
+  solana-violated-rules:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Solana Verified Rules
+      - name: Solana Violated Rules
         uses: ./
         with:
           use-beta: true
           ecosystem: solana
           configurations: |-
             tests/solana/Default.conf
-          job-name: "Solana Verified Rules"
+          job-name: "Solana Violated Rules"
           server: "staging"
           certora-key: ${{ secrets.CERTORAKEY }}
