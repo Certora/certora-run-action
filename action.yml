@@ -98,6 +98,10 @@ inputs:
     description: |-
       The debug level to use for the action command. Default is `0`.
       Options: `0`, `1`, `2`, or `3`.
+  working-directory:
+    default: ${{ github.workspace }}
+    description: |-
+      The working directory to run the action in. Default is the current working directory.
 
 runs:
   using: "composite"
@@ -244,6 +248,7 @@ runs:
 
     - name: Certora Run
       id: certora-run
+      working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: |
         RUN_CERTORA="${{ github.action_path }}/scripts/run-certora.sh"
