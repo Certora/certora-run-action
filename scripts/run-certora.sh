@@ -68,7 +68,7 @@ for conf_line in "${confs[@]}"; do
 
   cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
 
-  if [[ $current_dir == $GITHUB_WORKSPACE ]]; then
+  if [[ "$current_dir" == "$GITHUB_WORKSPACE" ]]; then
     current_dir="$run_dir"
   else
     current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
