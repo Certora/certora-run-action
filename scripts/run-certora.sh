@@ -65,7 +65,14 @@ for conf_line in "${confs[@]}"; do
   conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
   run_dir="/tmp/${conf_hash}"
   mkdir -p "$run_dir"
-  cp -lRP --update=none "$current_dir/." "$run_dir/"
+
+  # Copy the configuration files to the run directory
+  if [[ $current_dir == $GITHUB_WORKSPACE ]]; then
+    cp -lRP --update=none "$current_dir/." "$run_dir/"
+  else
+    cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+    cp -lRP --update=none "$current_dir/." "$run_dir/"
+  fi
 
   # Create log files
   RAND_SUFF=$(openssl rand -hex 6)

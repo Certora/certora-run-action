@@ -87,11 +87,12 @@ jobs:
       - name: Verified Rules
         uses: ./
         with:
+          working-directory: tests/evm
           configurations: |-
-            tests/evm/conf-verified.conf
-            tests/evm/conf-verified.conf --rule monotone --method "counter()"
-            tests/evm/conf-verified.conf --rule invertible
-            tests/evm/conf-verified.conf --method "counter()"
+            conf-verified.conf
+            conf-verified.conf --rule monotone --method "counter()"
+            conf-verified.conf --rule invertible
+            conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           server: "vaas-dev"
@@ -104,10 +105,11 @@ jobs:
       - name: Solana Violated Rules
         uses: ./
         with:
+          working-directory: tests/solana
           use-beta: true
           ecosystem: solana
           configurations: |-
-            tests/solana/Default.conf
+            Default.conf
           job-name: "Solana Violated Rules"
           server: "staging"
           certora-key: ${{ secrets.CERTORAKEY }}
