@@ -66,12 +66,12 @@ for conf_line in "${confs[@]}"; do
   run_dir="/tmp/${conf_hash}"
   mkdir -p "$run_dir"
 
-  # Copy the configuration files to the run directory
+  cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+
   if [[ $current_dir == $GITHUB_WORKSPACE ]]; then
-    cp -lRP --update=none "$current_dir/." "$run_dir/"
+    current_dir="$run_dir"
   else
-    cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-    cp -lRP --update=none "$current_dir/." "$run_dir/"
+    current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" $current_dir)"
   fi
 
   # Create log files
@@ -88,7 +88,7 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--debug")
   fi
 
-  cd "$run_dir" || continue
+  cd "$current_dir" || continue
 
   if [ "$DEBUG_LEVEL" -gt 2 ]; then
     find . -exec stat -c'%U %G %a %n' {} \;
