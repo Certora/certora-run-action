@@ -71,7 +71,7 @@ for conf_line in "${confs[@]}"; do
   if [[ $current_dir == $GITHUB_WORKSPACE ]]; then
     current_dir="$run_dir"
   else
-    current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" $current_dir)"
+    current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
   fi
 
   # Create log files
