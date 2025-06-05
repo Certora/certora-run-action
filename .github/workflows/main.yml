@@ -39,15 +39,14 @@ jobs:
       - name: Fail to Start
         uses: ./
         with:
-          working-directory: tests/evm
           use-beta: true
           configurations: |-
-            conf-start-error.conf
-            conf-verified.conf --rule monotone --method "counter()"
-            conf-violations.conf --method "counter()"
-            conf-verified.conf
-            conf-violations.conf --rule invertible
-            conf-start-error.conf --method "counter()"
+            tests/evm/conf-start-error.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-violations.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-violations.conf --rule invertible
+            tests/evm/conf-start-error.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Fail to Start"
           server: "staging"
@@ -69,12 +68,11 @@ jobs:
       - name: Violated Rules
         uses: ./
         with:
-          working-directory: tests/evm
           configurations: |-
-            conf-verified.conf
-            conf-violations.conf --rule invertible
-            conf-verified.conf --method "counter()"
-            conf-violations.conf
+            tests/evm/conf-verified.conf
+            tests/evm/conf-violations.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
+            tests/evm/conf-violations.conf
           solc-versions: 0.7.6 0.8.1
           job-name: "Violated Rules"
           server: "production"
@@ -89,12 +87,11 @@ jobs:
       - name: Verified Rules
         uses: ./
         with:
-          working-directory: tests/evm
           configurations: |-
-            conf-verified.conf
-            conf-verified.conf --rule monotone --method "counter()"
-            conf-verified.conf --rule invertible
-            conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           server: "vaas-dev"
