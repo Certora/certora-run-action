@@ -104,10 +104,11 @@ jobs:
       - name: Solana Violated Rules
         uses: ./
         with:
+          working-directory: tests/solana
           use-beta: true
           ecosystem: solana
           configurations: |-
-            tests/solana/Default.conf
+            Default.conf
           job-name: "Solana Violated Rules"
           server: "staging"
           certora-key: ${{ secrets.CERTORAKEY }}

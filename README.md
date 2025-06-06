@@ -102,6 +102,22 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Submit verification jobs to Certora Solana Prover
+      - name: Submit verification jobs to Certora Solana Prover
+        uses: Certora/certora-run-action@v1
+        with:
+          # Add your configurations as lines, each line is separated.
+          # Specify additional options for each configuration by adding them after the configuration.
+          working-directory: tests/solana
+          use-beta: true
+          ecosystem: solana
+          configurations: |-
+            Default.conf
+          job-name: "Verified Solana Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Permissions
