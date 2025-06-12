@@ -105,7 +105,6 @@ jobs:
         uses: ./
         with:
           working-directory: tests/solana
-          use-beta: true
           ecosystem: solana
           configurations: |-
             Default.conf
