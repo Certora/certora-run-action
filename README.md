@@ -107,10 +107,8 @@ jobs:
       - name: Submit verification jobs to Certora Solana Prover
         uses: Certora/certora-run-action@v1
         with:
-          # Add your configurations as lines, each line is separated.
-          # Specify additional options for each configuration by adding them after the configuration.
           working-directory: tests/solana
-          use-beta: true
+          # Specify solana ecosystem
           ecosystem: solana
           configurations: |-
             Default.conf
@@ -134,16 +132,14 @@ besides the permissions, the action requires the following secrets:
 
 ### Inputs
 
+General inputs for:
+
 - `configurations` - List of configuration files to run.
-- `solc-versions` - List of Solidity versions to download. The first version in the list
-  will also be available as `solc` in the environment. Each version will be available as
-  both `solc<version>` and `solc-<version>` in the environment.
 - `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
 - `ecosystem` - Name of the cli ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
 - `use-alpha` - Use the alpha version of the `certora-cli` (optional).
 - `use-beta` - Use the beta version of the `certora-cli` (optional).
 - `server` - Server to run the tests on (optional). Default is `production`.
-- `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
 - `compilation-steps-only` - Compile the spec and the code without sending a
@@ -151,6 +147,23 @@ besides the permissions, the action requires the following secrets:
 - `comment-fail-only` - Add a report comment to the pr only when the job fail (optional). Default it `true`.
 - `certora-key` - API key for Certora Prover.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
+- `debug-level` - Debug level for the action (optional). Default is `0`. Possible values are `0`, `1`, `2`, and `3`. Higher values will produce more debug output.
+
+EVM specific inputs (`ecosystem: evm`):
+
+- `solc-versions` - List of Solidity versions to download. The first version in the list
+  will also be available as `solc` in the environment. Each version will be available as
+  both `solc<version>` and `solc-<version>` in the environment.
+- `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
+
+Solana specific inputs (`ecosystem: solana`):
+
+- `rust-version` - The version of Rust to install. If not specified, the latest stable version will be used. The minimum supported version is `1.82.0`.
+- `rust-additional-versions` - Additional versions of Rust to install, separated by spaces. Example: `1.75 1.79`.
+- `certora-sbf-version` - The version of `cargo-certora-sbf` to install. If not specified, the latest version will be used.
+- `certora-sbf-options` - Additional options to pass to the `cargo certora-sbf` command. This can be used to specify additional flags or configurations for the Certora SBF tool.
+- `rust-setup` - Whether to set up Rust for Solana. Default is `true`. If you need more control over the Solana installation or options, you could use the
+  [Certora Rust Setup Action](https://github.com/Certora/rust-setup-action) directly in your workflow.
 
 ### Comments on the Pull Request
 

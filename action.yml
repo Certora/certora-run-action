@@ -102,6 +102,33 @@ inputs:
     default: ${{ github.workspace }}
     description: |-
       The working directory to run the action in. Default is the current working directory.
+  rust-setup:
+    default: "true"
+    description: |-
+      Whether to set up Rust for Solana. Default is `true`.
+  rust-version:
+    required: false
+    default: "stable"
+    description: |-
+      The version of Rust to install. If not specified, the latest stable version will be used.
+      The minimum supported version is `1.82.0`.
+  rust-additional-versions:
+    required: false
+    default: ""
+    description: |-
+      Additional versions of Rust to install, separated by spaces. Example: `1.75 1.79`.
+  certora-sbf-version:
+    required: false
+    default: ""
+    description: |-
+      The version of `cargo-certora-sbf` to install. If not specified, the latest version will be used.
+  certora-sbf-options:
+    required: false
+    default: ""
+    description: |-
+      Additional options to pass to the `cargo certora-sbf` command. This can be used to specify
+      additional flags or configurations for the Certora SBF tool. See https://github.com/Certora/cargo-certora-sbf
+      for more details on available options.
 
 runs:
   using: "composite"
@@ -238,13 +265,13 @@ runs:
         distribution: zulu
 
     - name: Install rust for solana
-      if: ${{ inputs.ecosystem == 'solana' }}
-      shell: bash
-      run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.86.0
-        . $HOME/.cargo/env
-        cargo install cargo-certora-sbf
-        cargo certora-sbf --no-build
+      if: ${{ inputs.ecosystem == 'solana' && inputs.rust-setup == 'true' }}
+      uses: Certora/rust-setup-action@v1
+      with:
+        version: ${{ inputs.rust-version }}
+        additional-versions: ${{ inputs.rust-additional-versions }}
+        certora-sbf-version: ${{ inputs.certora-sbf-version }}
+        certora-sbf-options: ${{ inputs.certora-sbf-options }}
 
     - name: Certora Run
       id: certora-run

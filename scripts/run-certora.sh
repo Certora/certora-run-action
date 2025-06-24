@@ -58,7 +58,13 @@ for conf_line in "${confs[@]}"; do
   eval "conf_parts=($conf_line)"
   conf_file="${conf_parts[0]}"
 
-  echo "Starting '$conf_line' with message: $MSG_CONF"
+  if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
+    ACTION="Compiling"
+  else
+    ACTION="Submitting"
+  fi
+
+  echo "$ACTION '$conf_line' with message: $MSG_CONF"
 
   # Create temporal directory for isolated executions
   # Use an md5 hash of the configuration file as the directory name
