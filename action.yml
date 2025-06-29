@@ -133,6 +133,26 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Validate github app intergration
+      shell: bash
+      run: |
+        echo "Checking GitHub App integration..."
+
+        TOKEN="$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq .value)"
+        PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
+        COMMIT="$GITHUB_SHA"
+
+        # TODO: change "data-api-dev" to "data-api".
+        curl -f -X POST "https://data-api-dev.certora.com/v1/github-app/verify" \
+          -H "Authorization: Bearer $TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{
+              "group_id": "'"$GROUP_ID"'",
+              "repo": "'"$GITHUB_REPOSITORY"'",
+              "commit": "'"$COMMIT"'",
+              "pr_number": '"${PR_NUMBER:-null}"'
+          }' > /tmp/response.json
+
     - name: Verify Certora key and GitHub Token
       shell: bash
       run: |
