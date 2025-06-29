@@ -138,7 +138,7 @@ runs:
       run: |
         echo "Checking GitHub App integration..."
 
-        TOKEN="$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq .value)"
+        TOKEN="$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)"
         PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
         COMMIT="$GITHUB_SHA"
 
