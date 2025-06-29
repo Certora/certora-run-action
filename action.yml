@@ -142,6 +142,8 @@ runs:
         PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
         COMMIT="$GITHUB_SHA"
 
+        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)" # remove this
+
         # TODO: change "data-api-dev" to "data-api".
         curl -f -X POST "https://data-api-dev.certora.com/v1/github-app/verify" \
           -H "Authorization: Bearer $TOKEN" \
