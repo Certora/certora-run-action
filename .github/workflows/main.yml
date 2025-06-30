@@ -41,7 +41,7 @@ jobs:
       - name: Fail to Start
         uses: ./
         with:
-          use-beta: true
+          cli-release: beta
           configurations: |-
             tests/evm/conf-start-error.conf
             tests/evm/conf-verified.conf --rule monotone --method "counter()"
