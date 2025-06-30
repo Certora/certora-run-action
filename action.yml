@@ -27,6 +27,7 @@ inputs:
       ```
   cli-release:
     required: false
+    default: stable
     description: |-
       The release type of the `certora-cli` to use. Default is `stable`.
       Options: `stable`, `alpha`, `beta`, or a custom branch name.
