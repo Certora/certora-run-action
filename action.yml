@@ -133,28 +133,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Validate github app intergration
-      shell: bash
-      run: |
-        echo "Checking GitHub App integration..."
-
-        TOKEN="$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)"
-        PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
-        COMMIT="$GITHUB_SHA"
-
-        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)" # remove this
-
-        # TODO: change "data-api-dev" to "data-api".
-        curl -f -X POST "https://data-api-dev.certora.com/v1/github-app/verify" \
-          -H "Authorization: Bearer $TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{
-              "group_id": "'"$GROUP_ID"'",
-              "repo": "'"$GITHUB_REPOSITORY"'",
-              "commit": "'"$COMMIT"'",
-              "pr_number": '"${PR_NUMBER:-null}"'
-          }' > /tmp/response.json
-
     - name: Verify Certora key and GitHub Token
       shell: bash
       run: |
@@ -209,16 +187,16 @@ runs:
       shell: bash
       id: setup-env
       run: |
-        CERTORA_LOG_DIR="/tmp/certora-logs/"
+        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
+        echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
+        echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
+
+        CERTORA_LOG_DIR="/tmp/certora-logs/$GROUP_ID"
         mkdir -p "$CERTORA_LOG_DIR"
         echo "CERTORA_LOG_DIR=$CERTORA_LOG_DIR" >> "$GITHUB_ENV"
 
         echo "MESSAGE_SUFFIX=GH:${{ github.repository }}/${SHORT_COMMIT_SHA}" >> "$GITHUB_ENV"
         echo "short_sha=${SHORT_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
-
-        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
-        echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
-        echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
 
         mkdir -p /opt/solc-bin
         echo "/opt/solc-bin/" >> $GITHUB_PATH
@@ -301,8 +279,11 @@ runs:
       shell: bash
       run: |
         RUN_CERTORA="${{ github.action_path }}/scripts/run-certora.sh"
+        GH_APP_INTEGRATION="${{ github.action_path }}/scripts/gh-app-integration.sh"
+
         if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "false" ]]; then
           CERTORA_COMPILATION_STEPS_ONLY=true bash "$RUN_CERTORA" && \
+          "$GH_APP_INTEGRATION" && \
           CERTORA_COMPILATION_STEPS_ONLY=false bash "$RUN_CERTORA"
         else
           bash "$RUN_CERTORA"
