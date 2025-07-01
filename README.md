@@ -143,9 +143,10 @@ General inputs for:
 
 - `configurations` - List of configuration files to run.
 - `cli-version` - Version of the `certora-cli` to use (optional). By default, the latest version is used. This action is compatible with versions `7.9.0` and above.
+- `cli-release` - Release type of the `certora-cli` to use (optional). Default is `stable`.
+  Options are `stable`, `alpha`, `beta`, or a custom branch name. Everything other than
+  `stable` should only be used for testing purposes and is not recommended for production use.
 - `ecosystem` - Name of the cli ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
-- `use-alpha` - Use the alpha version of the `certora-cli` (optional).
-- `use-beta` - Use the beta version of the `certora-cli` (optional).
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.

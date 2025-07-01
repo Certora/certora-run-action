@@ -25,6 +25,20 @@ inputs:
       ```yaml
       cli-version: 7.0.0
       ```
+  cli-release:
+    required: false
+    default: stable
+    description: |-
+      The release type of the `certora-cli` to use. Default is `stable`.
+      Options: `stable`, `alpha`, `beta`, or a custom branch name.
+
+      Everything other than `stable` should only be used for testing purposes!
+
+      Example:
+
+      ```yaml
+      cli-release: beta
+      ```
   configurations:
     required: true
     description: |-
@@ -69,14 +83,6 @@ inputs:
     description: |-
       The server to run the tests on. Default is `production`.
       Options: `production`, `staging`, or `vaas-dev`.
-  use-alpha:
-    default: "false"
-    description: |-
-      Whether to use the alpha version of the `certora-cli`.
-  use-beta:
-    default: "false"
-    description: |-
-      Whether to use the beta version of the `certora-cli`.
   job-name:
     default: ${{ github.job }}
     description: |-
@@ -201,7 +207,7 @@ runs:
         mkdir -p /opt/solc-bin
         echo "/opt/solc-bin/" >> $GITHUB_PATH
 
-        echo "${{ inputs.cli-version }}-${{ inputs.use-alpha }}-${{ inputs.use-beta }}" > .certora-cache-key
+        echo "${{ inputs.cli-version }}-${{ inputs.cli-release }}" > .certora-cache-key
 
         CERTORA_REPORT_FILE="/tmp/certora-logs/REPORT-${GROUP_ID}.md"
         echo "CERTORA_REPORT_FILE=$CERTORA_REPORT_FILE" >> "$GITHUB_ENV"
@@ -226,12 +232,18 @@ runs:
     - name: Install certora-cli
       shell: bash
       run: |
-        CERT_CLI_PACKAGE="certora-cli"
-          if [ '${{ inputs.use-alpha }}' == 'true' ]; then
-            CERT_CLI_PACKAGE="certora-cli-alpha-master"
-          elif [ '${{ inputs.use-beta }}' == 'true' ]; then
-            CERT_CLI_PACKAGE="certora-cli-beta"
-          fi
+        if [ '${{ inputs.cli-release }}' == 'stable' ]; then
+          CERT_CLI_PACKAGE="certora-cli"
+        elif [ '${{ inputs.cli-release }}' == 'beta' ]; then
+          echo "::warning title=Beta CLI Release::Using the beta version of certora-cli. This is not recommended for production use!"
+          CERT_CLI_PACKAGE="certora-cli-beta"
+        elif [ '${{ inputs.cli-release }}' == 'alpha' ]; then
+          echo "::warning title=Alpha CLI Release::Using the alpha version of certora-cli. This is not recommended for production use!"
+          CERT_CLI_PACKAGE="certora-cli-alpha-master"
+        else
+          echo "::warning title=Custom CLI Release::Using a custom branch for certora-cli is not recommended. Ensure you know what you are doing!"
+          CERT_CLI_PACKAGE="certora-cli-${{ inputs.cli-release }}"
+        fi
         CERT_CLI_PACKAGE="${CERT_CLI_PACKAGE}${CERT_CLI_VERSION:+==$CERT_CLI_VERSION}"
         echo "CERT_CLI_PACKAGE=$CERT_CLI_PACKAGE" >> $GITHUB_ENV
         echo "Using version $CERT_CLI_PACKAGE"
