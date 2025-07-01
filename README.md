@@ -180,6 +180,38 @@ And finally, once the first job finishes, GH App will add and update a review wi
 
 ![GitHub PR Review](/static/reviews.png?raw=true "GitHub PR Review")
 
+## Migration from v1 to v2
+
+If you are migrating from v1 to v2, you need to update the action reference in your workflow file:
+
+- **Permissions**: In order to provide verification using [GitHub OIDC] we need to
+  enable `id-token: write` permission. This way we can authenticate to Certora
+  and verify that [Certora Run Application] was installed on the repository.
+  Update your workflow file to include the `id-token: write` permission:
+
+```diff
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: write
++  id-token: write
+```
+
+- **CLI Release**: The `use-beta`/`use-alpha` inputs have been replaced with `cli-release`. The
+  default value is `stable`, so if you want to use the beta version, you need to
+  specify it explicitly:
+
+```diff
+      - name: Submit verification jobs to Certora Prover
+        uses: Certora/certora-run-action@v1
+        with:
+          configurations: |-
+            tests/evm/conf-verified.conf
+          solc-versions: 0.7.6 0.8.1
+-         use-beta: true
++         cli-release: beta
+```
+
 ## Development Setup
 
 For local development, you can use the [act] tool to run
@@ -210,3 +242,4 @@ start several workflows on all of our environments.
 [direnv]: https://github.com/direnv/direnv
 [Certora Run Application]: https://github.com/apps/certora-run
 [Certora Action Test]: https://github.com/Certora/certora-run-action-test
+[GitHub OIDC]: https://docs.github.com/en/actions/concepts/security/about-security-hardening-with-openid-connect#adding-permissions-settings
