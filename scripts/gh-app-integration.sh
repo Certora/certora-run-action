@@ -31,10 +31,9 @@ COMMIT="$GITHUB_SHA"
 # JSON payload
 PAYLOAD=$(jq -n \
   --arg group_id "$GROUP_ID" \
-  --arg repo "$GITHUB_REPOSITORY" \
   --arg commit "$COMMIT" \
   --argjson pr_number "${PR_NUMBER:-null}" \
-  '{group_id: $group_id, repo: $repo, commit: $commit, pr_number: $pr_number}')
+  '{group_id: $group_id, commit: $commit, pr_number: $pr_number}')
 
 # Make API request to verify GitHub App integration
 curl -sSL --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_SUBDOMAIN.certora.com/v1/github-app/verify" \
