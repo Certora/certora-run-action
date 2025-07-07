@@ -27,7 +27,7 @@ if [[ ${#confs[@]} -gt 1 ]]; then
   # Append a newline and the hold space to the pattern space, capture the common prefix
   # Copy the pattern space to the hold space and delete the pattern space until the last line
   common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' | tr -d '\n')"
-else
+elif [[ "${confs[0]}" == */* ]]; then
   # Keep the file name only
   common_prefix="$(echo "${confs[0]}" | sed 's/\(.*\/\)[^\/]*$/\1/')"
 fi
