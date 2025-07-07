@@ -11,7 +11,7 @@ echo "Checking GitHub App integration..."
 # Validate required variables
 : "${CERTORA_LOG_DIR:?Missing CERTORA_LOG_DIR}"
 : "${GROUP_ID:?Missing GROUP_ID}"
-: "${CERTORA_SUBDOMAIN:?Missing CERTORA_SUBDOMAIN}"
+: "${CERTORA_API_SUBDOMAIN:?Missing CERTORA_API_SUBDOMAIN}"
 : "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:?Missing ACTIONS_ID_TOKEN_REQUEST_TOKEN}"
 : "${ACTIONS_ID_TOKEN_REQUEST_URL:?Missing ACTIONS_ID_TOKEN_REQUEST_URL}"
 : "${GITHUB_EVENT_PATH:?Missing GITHUB_EVENT_PATH}"
@@ -35,7 +35,7 @@ PAYLOAD=$(jq -n \
   '{group_id: $group_id, commit: $commit, pr_number: $pr_number}')
 
 # Make API request to verify GitHub App integration
-curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_SUBDOMAIN.certora.com/v1/github-app/verify" \
+curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_API_SUBDOMAIN.certora.com/v1/github-app/verify" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" >"$GHINT_LOG" || {
