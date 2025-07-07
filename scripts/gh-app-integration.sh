@@ -18,6 +18,9 @@ echo "Checking GitHub App integration..."
 
 GHINT_LOG="$CERTORA_LOG_DIR/gh-int.json"
 
+CERT_GH_APP_LINK='https://github.com/apps/certora-run'
+CERT_GH_ACTION_LINK='https://github.com/Certora/certora-run-action'
+
 # Fetch OIDC token
 TOKEN="$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)"
 if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
@@ -26,6 +29,8 @@ if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
 fi
 
 PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
+
+ERROR_MSG="GitHub Application Integration Missing. Please install the [Certora GitHub App]($CERT_GH_APP_LINK) and follow the guide from [Certora GitHub Action]($CERT_GH_ACTION_LINK)."
 
 # JSON payload
 PAYLOAD=$(jq -n \
@@ -39,7 +44,7 @@ curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-b
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" >"$GHINT_LOG" || {
-  echo "::error title=GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG")"
+  echo "::error title=GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG") - $ERROR_MSG"
   cat "$GHINT_LOG"
   exit 1
 }
