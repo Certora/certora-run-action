@@ -26,12 +26,11 @@ if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
 fi
 
 PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
-COMMIT="$GITHUB_SHA"
 
 # JSON payload
 PAYLOAD=$(jq -n \
   --arg group_id "$GROUP_ID" \
-  --arg commit "$COMMIT" \
+  --arg commit "$COMMIT_SHA" \
   --argjson pr_number "${PR_NUMBER:-null}" \
   '{group_id: $group_id, commit: $commit, pr_number: $pr_number}')
 
@@ -39,8 +38,8 @@ PAYLOAD=$(jq -n \
 curl -sSL --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_SUBDOMAIN.certora.com/v1/github-app/verify" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d "$PAYLOAD" > "$GHINT_LOG" || {
-    echo "::error title=GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG")"
-    cat "$GHINT_LOG"
-    exit 1
-  }
+  -d "$PAYLOAD" >"$GHINT_LOG" || {
+  echo "::error title=GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG")"
+  cat "$GHINT_LOG"
+  exit 1
+}
