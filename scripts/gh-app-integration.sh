@@ -30,7 +30,7 @@ fi
 
 PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
 
-ERROR_MSG="GitHub Application Integration Missing. Please install the [Certora GitHub App]($CERT_GH_APP_LINK) and follow the guide from [Certora GitHub Action]($CERT_GH_ACTION_LINK)."
+ERROR_MSG="Please install the Certora GitHub App ($CERT_GH_APP_LINK) and follow the guide from Certora GitHub Action ($CERT_GH_ACTION_LINK)."
 
 # JSON payload
 PAYLOAD=$(jq -n \
@@ -44,7 +44,7 @@ curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-b
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" >"$GHINT_LOG" || {
-  echo "::error title=GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG") - $ERROR_MSG"
+  echo "::error title=Certora GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG") - $ERROR_MSG"
   cat "$GHINT_LOG"
   exit 1
 }
