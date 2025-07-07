@@ -35,7 +35,7 @@ PAYLOAD=$(jq -n \
   '{group_id: $group_id, commit: $commit, pr_number: $pr_number}')
 
 # Make API request to verify GitHub App integration
-curl -sSL --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_SUBDOMAIN.certora.com/v1/github-app/verify" \
+curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_SUBDOMAIN.certora.com/v1/github-app/verify" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD" >"$GHINT_LOG" || {
