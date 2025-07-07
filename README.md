@@ -16,6 +16,7 @@ jobs:
       contents: read
       statuses: write
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -70,6 +71,11 @@ on:
 jobs:
   certora_run_submission:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -125,6 +131,7 @@ This action requires the following permissions:
 - `contents: read` - Clone the repository and read the configuration files.
 - `statuses: write` - Write the status of the run to the GitHub UI.
 - `pull-requests: write` - Write the run status & comment on the pull request.
+- `id-token: write` - enables GitHub to request a signed OIDC token.
 
 besides the permissions, the action requires the following secrets:
 

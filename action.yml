@@ -193,16 +193,16 @@ runs:
       shell: bash
       id: setup-env
       run: |
-        CERTORA_LOG_DIR="/tmp/certora-logs/"
+        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
+        echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
+        echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
+
+        CERTORA_LOG_DIR="/tmp/certora-logs/$GROUP_ID"
         mkdir -p "$CERTORA_LOG_DIR"
         echo "CERTORA_LOG_DIR=$CERTORA_LOG_DIR" >> "$GITHUB_ENV"
 
         echo "MESSAGE_SUFFIX=GH:${{ github.repository }}/${SHORT_COMMIT_SHA}" >> "$GITHUB_ENV"
         echo "short_sha=${SHORT_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
-
-        GROUP_ID="$(cat /proc/sys/kernel/random/uuid)"
-        echo "GROUP_ID=$GROUP_ID" >> $GITHUB_ENV
-        echo "group_id=$GROUP_ID" >> $GITHUB_OUTPUT
 
         mkdir -p /opt/solc-bin
         echo "/opt/solc-bin/" >> $GITHUB_PATH
@@ -214,14 +214,18 @@ runs:
         echo "report_file=$CERTORA_REPORT_FILE" >> "$GITHUB_OUTPUT"
 
         CERTORA_SUBDOMAIN="prover"
+        CERTORA_API_SUBDOMAIN="data-api"
         if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
           CERTORA_SUBDOMAIN="vaas-dev"
+          CERTORA_API_SUBDOMAIN="data-api-dev"
         elif [[ "${{ inputs.server }}" == "staging" || "${{ inputs.server }}" == "vaas-stg" ]]; then
           CERTORA_SUBDOMAIN="vaas-stg"
+          CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
 
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
         echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
+        echo "CERTORA_API_SUBDOMAIN=$CERTORA_API_SUBDOMAIN" >> "$GITHUB_ENV"
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
@@ -291,8 +295,11 @@ runs:
       shell: bash
       run: |
         RUN_CERTORA="${{ github.action_path }}/scripts/run-certora.sh"
+        GH_APP_INTEGRATION="${{ github.action_path }}/scripts/gh-app-integration.sh"
+
         if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "false" ]]; then
           CERTORA_COMPILATION_STEPS_ONLY=true bash "$RUN_CERTORA" && \
+          bash "$GH_APP_INTEGRATION" && \
           CERTORA_COMPILATION_STEPS_ONLY=false bash "$RUN_CERTORA"
         else
           bash "$RUN_CERTORA"
