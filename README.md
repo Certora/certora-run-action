@@ -1,6 +1,6 @@
 # Certora Run GitHub Action
 
-This repository contains Certora Run GitHub Action that allows you to run Certora Prover
+This repository contains a Certora Run GitHub Action that allows you to run Certora Prover
 on your contracts in parallel, receive the results as a comment on the pull request.
 
 ## Usage
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Submit verification jobs to Certora Prover
-        uses: Certora/certora-run-action@v1
+        uses: Certora/certora-run-action@v2
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
@@ -42,7 +42,7 @@ every configuration file, and run the tests asynchronously. If one of the config
 fails to start, the action will be marked as failed, and all other jobs will continue to run.
 
 Once all the tests are finished, `Certora Run GitHub Application` will mark the commit
-statuses as either `success` or `failure` and comment on the pull request with the
+statuses as either `success` or `failure`, and comment on the pull request with the
 results.
 
 Both solidity compilers and `certora-cli` dependencies are cached between runs.
@@ -54,7 +54,7 @@ name: Certora Prover Submission Workflow
 description: |-
   This workflow submits Certora Prover jobs on the specified configurations. Once all
   jobs are successfully submitted, it will add a pending commit status to the commit.
-  This status will be periodically updated with verification results of the jobs along
+  This status will be periodically updated with verification results of the jobs, along
   with the verification summary comment on the pull request.
 
   For more information, please visit https://github.com/certora/certora-run-action.
@@ -94,7 +94,7 @@ jobs:
 
       # Submit verification jobs to Certora Prover
       - name: Submit verification jobs to Certora Prover
-        uses: Certora/certora-run-action@v1
+        uses: Certora/certora-run-action@v2
         with:
           # Add your configurations as lines, each line is separated.
           # Specify additional options for each configuration by adding them after the configuration.
@@ -111,7 +111,7 @@ jobs:
 
       # Submit verification jobs to Certora Solana Prover
       - name: Submit verification jobs to Certora Solana Prover
-        uses: Certora/certora-run-action@v1
+        uses: Certora/certora-run-action@v2
         with:
           working-directory: tests/solana
           # Specify solana ecosystem
@@ -146,13 +146,13 @@ General inputs for:
 - `cli-release` - Release type of the `certora-cli` to use (optional). Default is `stable`.
   Options are `stable`, `alpha`, `beta`, or a custom branch name. Everything other than
   `stable` should only be used for testing purposes and is not recommended for production use.
-- `ecosystem` - Name of the cli ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
+- `ecosystem` - Name of the CLI ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
 - `compilation-steps-only` - Compile the spec and the code without sending a
   verification request to the cloud (optional). Default is `false`.
-- `comment-fail-only` - Add a report comment to the pr only when the job fail (optional). Default it `true`.
+- `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default it `true`.
 - `certora-key` - API key for Certora Prover.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 - `debug-level` - Debug level for the action (optional). Default is `0`. Possible values are `0`, `1`, `2`, and `3`. Higher values will produce more debug output.
@@ -170,7 +170,7 @@ Solana specific inputs (`ecosystem: solana`):
 - `rust-additional-versions` - Additional versions of Rust to install, separated by spaces. Example: `1.75 1.79`.
 - `certora-sbf-version` - The version of `cargo-certora-sbf` to install. If not specified, the latest version will be used.
 - `certora-sbf-options` - Additional options to pass to the `cargo certora-sbf` command. This can be used to specify additional flags or configurations for the Certora SBF tool.
-- `rust-setup` - Whether to set up Rust for Solana. Default is `true`. If you need more control over the Solana installation or options, you could use the
+- `rust-setup` - Whether to set up Rust for Solana. The default is `true`. If you need more control over the Solana installation or options, you could use the
   [Certora Rust Setup Action](https://github.com/Certora/rust-setup-action) directly in your workflow.
 
 ### Comments on the Pull Request
@@ -191,7 +191,7 @@ And finally, once the first job finishes, GH App will add and update a review wi
 
 If you are migrating from v1 to v2, you need to update the action reference in your workflow file:
 
-- **Permissions**: In order to provide verification using [GitHub OIDC] we need to
+- **Permissions**: In order to provide verification using [GitHub OIDC], we need to
   enable `id-token: write` permission. This way we can authenticate to Certora
   and verify that [Certora Run Application] was installed on the repository.
   Update your workflow file to include the `id-token: write` permission:
@@ -210,7 +210,8 @@ permissions:
 
 ```diff
       - name: Submit verification jobs to Certora Prover
-        uses: Certora/certora-run-action@v1
+-       uses: Certora/certora-run-action@v1
++       uses: Certora/certora-run-action@v2
         with:
           configurations: |-
             tests/evm/conf-verified.conf
@@ -222,7 +223,7 @@ permissions:
 ## Development Setup
 
 For local development, you can use the [act] tool to run
-the action locally. The easiest way to set up everything is through combination of
+the action locally. The easiest way to set up everything is through a combination of
 [nix] and [direnv].
 
 In order to set up the environment, follow these steps:
@@ -241,7 +242,7 @@ act workflow_dispatch \
     --container-architecture=linux/amd64
 ```
 
-For testing, please create a PR using [Certora Action Test] repository. The PR should
+For testing, please create a PR using the [Certora Action Test] repository. The PR should
 start several workflows on all of our environments.
 
 [act]: https://github.com/nektos/act
