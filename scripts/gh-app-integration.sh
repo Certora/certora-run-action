@@ -36,8 +36,9 @@ ERROR_MSG="Please install the Certora GitHub App ($CERT_GH_APP_LINK) and follow 
 PAYLOAD=$(jq -n \
   --arg group_id "$GROUP_ID" \
   --arg commit "$COMMIT_SHA" \
+  --arg action_ref "$CERTORA_ACTION_REF" \
   --argjson pr_number "${PR_NUMBER:-null}" \
-  '{group_id: $group_id, commit: $commit, pr_number: $pr_number}')
+  '{group_id: $group_id, commit: $commit, action_ref: $action_ref, pr_number: $pr_number}')
 
 # Make API request to verify GitHub App integration
 curl -sS --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_API_SUBDOMAIN.certora.com/v1/github-app/verify" \
