@@ -223,9 +223,12 @@ runs:
           CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
 
+        echo "CERTORA_ACTION_REF=$CERTORA_ACTION_REF" >> "$GITHUB_ENV"
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
         echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
         echo "CERTORA_API_SUBDOMAIN=$CERTORA_API_SUBDOMAIN" >> "$GITHUB_ENV"
+      env:
+        CERTORA_ACTION_REF: ${{ github.action_ref }}
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
