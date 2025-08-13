@@ -255,6 +255,7 @@ runs:
         echo "CERT_CLI_PACKAGE=$CERT_CLI_PACKAGE" >> $GITHUB_ENV
         echo "Using version $CERT_CLI_PACKAGE"
         uv tool install "$CERT_CLI_PACKAGE"
+        uv tool list
       env:
         CERT_CLI_VERSION: ${{ inputs.cli-version }}
 
