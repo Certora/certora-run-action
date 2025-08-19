@@ -53,6 +53,7 @@ jobs:
           solc-versions: 0.7.6 0.8.1
           job-name: "Fail to Start"
           server: "staging"
+          debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
         id: certora_run
         continue-on-error: true
@@ -79,6 +80,7 @@ jobs:
           solc-versions: 0.7.6 0.8.1
           job-name: "Violated Rules"
           server: "production"
+          debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
 
   verified_rules:
@@ -98,6 +100,7 @@ jobs:
           solc-versions: 0.7.6 0.8.1
           job-name: "Verified Rules"
           server: "vaas-dev"
+          debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
 
   solana-violated-rules:
@@ -113,4 +116,5 @@ jobs:
             Default.conf
           job-name: "Solana Violated Rules"
           server: "staging"
+          debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
