@@ -66,9 +66,9 @@ for conf_line in "${confs[@]}"; do
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
 
-  # Create temporal directory for isolated executions
-  # Use an md5 hash of the configuration file as the directory name
-  conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  # Create a temporal directory for isolated executions
+  # Use an MD5 hash of the configuration file as the directory name
+  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
   run_dir="/tmp/${conf_hash}"
   mkdir -p "$run_dir"
 
