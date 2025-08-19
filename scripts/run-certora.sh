@@ -46,6 +46,24 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# Create all folders and copy/link all files before any certoraRun executions
+# in case we need to modify them
+for conf_line in "${confs[@]}"; do
+  # Create a temporal directory for isolated executions
+  # Use an MD5 hash of the configuration file as the directory name
+  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
+  run_dir="/tmp/${conf_hash}"
+  mkdir -p "$run_dir"
+
+  if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
+    echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
+    cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+  else
+    echo "Creating folder and copying files for: $conf_line ($run_dir)"
+    cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+  fi
+done
+
 for conf_line in "${confs[@]}"; do
 
   short_conf_line="${conf_line#"$common_prefix"}"
@@ -66,19 +84,13 @@ for conf_line in "${confs[@]}"; do
   fi
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
-
-  # Create temporal directory for isolated executions
-  # Use an md5 hash of the configuration file as the directory name
-  conf_hash=$(echo -n "$conf_file" | md5sum | awk '{print $1}')
+  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
   run_dir="/tmp/${conf_hash}"
-  mkdir -p "$run_dir"
 
-  cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-
-  if [[ "$current_dir" == "$GITHUB_WORKSPACE" ]]; then
-    current_dir="$run_dir"
-  else
-    current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+  # If we're using github.working-directory we have changed the run directory relative
+  # to the workspace
+  if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
+    run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
   fi
 
   # Create log files
@@ -95,10 +107,10 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--debug")
   fi
 
-  cd "$current_dir" || continue
+  cd "$run_dir" || continue
 
   if [ "$DEBUG_LEVEL" -gt 2 ]; then
-    find . -exec stat -c'%U %G %a %n' {} \;
+    find . -path './.git' -prune -o -exec stat -c'%U %G %a %n' {} \;
   fi
 
   uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "${conf_parts[@]}" \

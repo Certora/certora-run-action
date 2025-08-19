@@ -135,7 +135,11 @@ inputs:
       Additional options to pass to the `cargo certora-sbf` command. This can be used to specify
       additional flags or configurations for the Certora SBF tool. See https://github.com/Certora/cargo-certora-sbf
       for more details on available options.
-
+  use-hard-links:
+    required: false
+    default: "true"
+    description: |-
+      Whether to use hard links when copying files. Default is `true`.
 runs:
   using: "composite"
   steps:
@@ -316,6 +320,7 @@ runs:
         CERTORA_COMPILATION_STEPS_ONLY: "${{ inputs.compilation-steps-only }}"
         CERTORA_ECOSYSTEM: "${{ inputs.ecosystem }}"
         DEBUG_LEVEL: "${{ inputs.debug-level }}"
+        CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
 
     - name: Add GH Status
       if: always()

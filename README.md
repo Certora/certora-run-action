@@ -155,6 +155,7 @@ General inputs for:
 - `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default it `true`.
 - `certora-key` - API key for Certora Prover.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
+- `use-hard-links` - Whether to use hard links when copying files (optional). If you expect to modify the files in the run directory during `certoraRun` execution, you should set this to `false`.
 - `debug-level` - Debug level for the action (optional). Default is `0`. Possible values are `0`, `1`, `2`, and `3`. Higher values will produce more debug output.
 
 EVM specific inputs (`ecosystem: evm`):
