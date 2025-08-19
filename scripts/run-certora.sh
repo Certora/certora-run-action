@@ -109,7 +109,7 @@ for conf_line in "${confs[@]}"; do
   cd "$run_dir" || continue
 
   if [ "$DEBUG_LEVEL" -gt 2 ]; then
-    find . -exec stat -c'%U %G %a %n' {} \; | grep -v '.git/'
+    find . -path './.git' -prune -o -exec stat -c'%U %G %a %n' {} \;
   fi
 
   uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "${conf_parts[@]}" \
