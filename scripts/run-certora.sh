@@ -74,10 +74,8 @@ for conf_line in "${confs[@]}"; do
 
   cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
 
-  if [[ "$current_dir" == "$GITHUB_WORKSPACE" ]]; then
-    current_dir="$run_dir"
-  else
-    current_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+  if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
+    run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
   fi
 
   # Create log files
@@ -94,10 +92,10 @@ for conf_line in "${confs[@]}"; do
     conf_parts+=("--debug")
   fi
 
-  cd "$current_dir" || continue
+  cd "$run_dir" || continue
 
   if [ "$DEBUG_LEVEL" -gt 2 ]; then
-    find . -exec stat -c'%U %G %a %n' {} \;
+    find . -exec stat -c'%U %G %a %n' {} \; | grep -v '.git/'
   fi
 
   uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "${conf_parts[@]}" \
