@@ -42,6 +42,7 @@ else
   exit 1
 fi
 echo "Using cli entrypoint: $CLI_ENTRYPOINT"
+uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
