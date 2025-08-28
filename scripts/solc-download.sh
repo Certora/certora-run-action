@@ -27,7 +27,7 @@ for version in $VERSIONS; do
 
   if [ ! -f "$BIN_PATH" ]; then
     echo "Downloading Solidity $version"
-    RELEASE_DETAIL=$(curl -sSfL --retry 3 -H "$AUTH_HEADER" "${GH_LINK}${version}")
+    RELEASE_DETAIL=$(curl -sSfL --retry 3 --max-time 30 -H "$AUTH_HEADER" "${GH_LINK}${version}")
 
     if [[ -z "$RELEASE_DETAIL" || $(jq 'has("assets")' <<<"$RELEASE_DETAIL") == "false" ]]; then
       echo "Failed to fetch release details for Solidity $version"
@@ -36,7 +36,7 @@ for version in $VERSIONS; do
     fi
     BIN_LINK=$(jq -r "$JQ_FILTER" <<<"$RELEASE_DETAIL")
 
-    curl -sSfL --retry 3 \
+    curl -sSfL --retry 3 --max-time 30 --max-time 60 \
       -H "Accept: application/octet-stream" \
       -H "$AUTH_HEADER" \
       "${BIN_LINK}" -o "$BIN_PATH"
