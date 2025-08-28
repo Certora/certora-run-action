@@ -36,7 +36,7 @@ for version in $VERSIONS; do
     fi
     BIN_LINK=$(jq -r "$JQ_FILTER" <<<"$RELEASE_DETAIL")
 
-    curl -sSfL --retry 3 --max-time 30 \
+    curl -sSfL --retry 3 --max-time 90 \
       -H "Accept: application/octet-stream" \
       -H "$AUTH_HEADER" \
       "${BIN_LINK}" -o "$BIN_PATH"
