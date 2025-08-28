@@ -227,6 +227,8 @@ runs:
           CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
 
+        echo "solc_cache_key=$(md5sum <<< '${{ inputs.solc-versions }}' | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
+
         echo "CERTORA_ACTION_REF=$CERTORA_ACTION_REF" >> "$GITHUB_ENV"
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
         echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
@@ -264,11 +266,14 @@ runs:
         CERT_CLI_VERSION: ${{ inputs.cli-version }}
 
     - name: Cache Solidity Binaries
+      if: ${{ inputs.solc-versions }}
       id: solc-cache
       uses: actions/cache@v4
       with:
         path: /opt/solc-bin
-        key: solc-bin
+        key: solc-bin-${{ steps.setup-env.outputs.solc_cache_key }}
+        restore-keys: |
+          solc-bin
 
     - name: Download Solidity Binaries
       if: ${{ inputs.solc-versions }}
