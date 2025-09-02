@@ -18,18 +18,16 @@ required_vars=(
   GITHUB_EVENT_PATH
 )
 
-CERTORA_LOG_DIR="" # TODO: remove this
-GROUP_ID="" # TODO: remove this
-missing=false
+missing_args=false
 
 for var in "${required_vars[@]}"; do
   if [ -z "${!var:-}" ]; then
     echo "::error title=Missing argument::$var is required but not set"
-    missing=true
+    missing_args=true
   fi
 done
 
-if [ "$missing" = true ]; then
+if [ "$missing_args" = true ]; then
   exit 1
 fi
 
