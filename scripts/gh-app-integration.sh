@@ -19,6 +19,7 @@ required_vars=(
 )
 
 CERTORA_LOG_DIR="" # TODO: remove this
+GROUP_ID="" # TODO: remove this
 missing=false
 
 for var in "${required_vars[@]}"; do
