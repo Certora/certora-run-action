@@ -18,10 +18,19 @@ required_vars=(
   GITHUB_EVENT_PATH
 )
 
-CERTORA_LOG_DIR="" #TODO: remove this
+CERTORA_LOG_DIR="" # TODO: remove this
+missing=false
+
 for var in "${required_vars[@]}"; do
-  : "${!var:?::error title=Missing argument $var is unset.}"
+  if [ -z "${!var:-}" ]; then
+    echo "::error title=Missing argument::$var is required but not set"
+    missing=true
+  fi
 done
+
+if [ "$missing" = true ]; then
+  exit 1
+fi
 
 GHINT_LOG="$CERTORA_LOG_DIR/gh-int.json"
 
