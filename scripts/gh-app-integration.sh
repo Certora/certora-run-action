@@ -9,12 +9,27 @@ fi
 echo "Checking GitHub App integration..."
 
 # Validate required variables
-: "${CERTORA_LOG_DIR:?Missing CERTORA_LOG_DIR}"
-: "${GROUP_ID:?Missing GROUP_ID}"
-: "${CERTORA_API_SUBDOMAIN:?Missing CERTORA_API_SUBDOMAIN}"
-: "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:?Missing ACTIONS_ID_TOKEN_REQUEST_TOKEN}"
-: "${ACTIONS_ID_TOKEN_REQUEST_URL:?Missing ACTIONS_ID_TOKEN_REQUEST_URL}"
-: "${GITHUB_EVENT_PATH:?Missing GITHUB_EVENT_PATH}"
+required_vars=(
+  CERTORA_LOG_DIR
+  GROUP_ID
+  CERTORA_API_SUBDOMAIN
+  ACTIONS_ID_TOKEN_REQUEST_TOKEN
+  ACTIONS_ID_TOKEN_REQUEST_URL
+  GITHUB_EVENT_PATH
+)
+
+missing_args=false
+
+for var in "${required_vars[@]}"; do
+  if [ -z "${!var:-}" ]; then
+    echo "::error title=Missing variable::$var is required but not set"
+    missing_args=true
+  fi
+done
+
+if [ "$missing_args" = true ]; then
+  exit 1
+fi
 
 GHINT_LOG="$CERTORA_LOG_DIR/gh-int.json"
 
