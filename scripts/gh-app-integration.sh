@@ -22,7 +22,7 @@ missing_args=false
 
 for var in "${required_vars[@]}"; do
   if [ -z "${!var:-}" ]; then
-    echo "::error title=Missing argument::$var is required but not set"
+    echo "::error title=Missing variable::$var is required but not set"
     missing_args=true
   fi
 done
