@@ -55,6 +55,7 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+          vyper-version: latest
         id: certora_run
         continue-on-error: true
       - name: Check if Fail to Start job failed

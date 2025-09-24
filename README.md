@@ -164,6 +164,8 @@ EVM specific inputs (`ecosystem: evm`):
   will also be available as `solc` in the environment. Each version will be available as
   both `solc<version>` and `solc-<version>` in the environment.
 - `solc-remove-version-prefix` - Prefix to remove from the Solidity version (optional).
+- `vyper-version` - The version of Vyper to install. Can be `latest`, or a specific
+  version like `0.3.3`. If not specified, Vyper will not be installed.
 
 Solana specific inputs (`ecosystem: solana`):
 
