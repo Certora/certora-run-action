@@ -140,6 +140,11 @@ inputs:
     default: "true"
     description: |-
       Whether to use hard links when copying files. Default is `true`.
+  vyper-version:
+    required: false
+    description: |-
+      The version of Vyper to install. Can be latest, or a specific version like 0.3.3.
+      If not specified, Vyper will not be installed.
 runs:
   using: "composite"
   steps:
@@ -264,7 +269,19 @@ runs:
         uv tool list
       env:
         CERT_CLI_VERSION: ${{ inputs.cli-version }}
-
+    - name: Install Vyper
+      if: ${{ inputs.vyper-version }}
+      shell: bash
+      run: |
+        if [ '${{ inputs.vyper-version }}' == 'latest' ]; then
+          VYPER_PACKAGE="vyper"
+        else
+          VYPER_PACKAGE="vyper==${{ inputs.vyper-version }}"
+        fi
+        echo "Installing Vyper version: $VYPER_PACKAGE"
+        uv tool install "$VYPER_PACKAGE"
+        uv tool list
+        vyper --version
     - name: Cache Solidity Binaries
       if: ${{ inputs.solc-versions }}
       id: solc-cache
