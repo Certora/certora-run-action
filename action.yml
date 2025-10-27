@@ -345,7 +345,7 @@ runs:
         CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
 
     - name: Add GH Status
-      if: always()
+      if: failed()
       shell: bash
       run: |
         if [[ ${{ steps.certora-run.outputs.total_jobs }} -ne 0 ]]; then
