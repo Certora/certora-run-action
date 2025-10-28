@@ -269,6 +269,7 @@ runs:
         uv tool list
       env:
         CERT_CLI_VERSION: ${{ inputs.cli-version }}
+
     - name: Install Vyper
       if: ${{ inputs.vyper-version }}
       shell: bash
@@ -282,6 +283,7 @@ runs:
         uv tool install "$VYPER_PACKAGE"
         uv tool list
         vyper --version
+
     - name: Cache Solidity Binaries
       if: ${{ inputs.solc-versions }}
       id: solc-cache
@@ -345,7 +347,6 @@ runs:
         CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
 
     - name: Add GH Status
-      if: failure()
       shell: bash
       run: |
         if [[ ${{ steps.certora-run.outputs.total_jobs }} -ne 0 ]]; then
@@ -373,7 +374,6 @@ runs:
 
     - name: Add Summary To Report
       shell: bash
-      if: always()
       run: |
         echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> "${{ steps.setup-env.outputs.report_file }}"
 
