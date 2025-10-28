@@ -8,7 +8,7 @@ REMOVE_PREFIX="$1"
 
 mkdir -p /opt/solc-bin
 
-GH_LINK='https://api.github.com/repos/ethereum/solidity/releases/tags/v'
+GH_LINK='https://api.github.com/repos/argotorg/solidity/releases/tags/v'
 JQ_FILTER='.assets[] | select(.name == "solc-static-linux") | .url'
 AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
 
