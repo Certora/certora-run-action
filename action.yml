@@ -363,7 +363,6 @@ runs:
             "context":"certora-run/${{ steps.setup-env.outputs.group_id }}"
           }'
 
-
     - name: Upload Logs
       uses: actions/upload-artifact@v4
       id: upload-logs
