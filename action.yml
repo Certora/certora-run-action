@@ -347,6 +347,7 @@ runs:
         CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
 
     - name: Add GH Status
+      if: ${{ steps.certora-run.outputs.total_jobs }}
       shell: bash
       run: |
         if [[ ${{ steps.certora-run.outputs.total_jobs }} -ne 0 ]]; then
@@ -373,12 +374,13 @@ runs:
         path: /tmp/certora-logs/*
 
     - name: Add Summary To Report
+      if: always()
       shell: bash
       run: |
         echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> "${{ steps.setup-env.outputs.report_file }}"
 
     - name: Add report comment
-      if: ${{ failure() || inputs.comment-fail-only == 'false' }}
+      if: ${{ (failure() || inputs.comment-fail-only == 'false') && steps.certora-run.outputs.total_jobs }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: ${{ steps.setup-env.outputs.group_id }}

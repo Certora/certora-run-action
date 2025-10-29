@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ "$DEBUG_LEVEL" -gt 0 ]; then
   set -x
 fi
