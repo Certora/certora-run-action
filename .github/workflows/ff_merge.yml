@@ -46,8 +46,8 @@ jobs:
           if [[ "$BRANCH_NAME" == release-* ]]; then
             echo "Removing branch: $BRANCH_NAME"
 
-            # Remove the remote branch
-            git push origin --delete "$BRANCH_NAME"
+            # Remove the remote branch (if GH does not delete it first)
+            git push origin --delete "$BRANCH_NAME" || echo "Branch '$BRANCH_NAME' may not exist on remote."
           else
             echo "Branch '$BRANCH_NAME' does not match 'release-*', skipping."
           fi
