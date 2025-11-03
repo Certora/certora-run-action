@@ -129,6 +129,7 @@ jobs:
         with:
           working-directory: tests/sui
           ecosystem: sui
+          cli-release: beta
           configurations: |-
             Default.conf
           job-name: "Sui Violated Rules"

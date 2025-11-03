@@ -57,7 +57,7 @@ inputs:
     default: evm
     description: |-
       The ecosystem to use for the `certoraRun` command. Default is `evm`.
-      Options: `evm`, `solana` and `sui`
+      Options: `evm`, `solana` and `sui`.
 
   solc-versions:
     required: false
@@ -139,7 +139,7 @@ inputs:
     required: false
     default: "testnet"
     description: |-
-      The version of Sui to install. If not specified, the latest testnet version will be used.
+      The version of Sui to install. Can be a specific version (e.g., `1.2.3`), or a channel/alias such as `testnet`, `mainnet`, or `devnet`.
   use-hard-links:
     required: false
     default: "true"
@@ -331,7 +331,7 @@ runs:
       shell: bash
       run: |
         curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
-        export PATH="/root/.local/bin:$PATH"
+        export PATH="/$HOME/.local/bin:$PATH"
         suiup install sui@${{ inputs.sui-version }}
 
     - name: Certora Run
