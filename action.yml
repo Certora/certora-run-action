@@ -57,7 +57,7 @@ inputs:
     default: evm
     description: |-
       The ecosystem to use for the `certoraRun` command. Default is `evm`.
-      Options: `evm` and `solana`.
+      Options: `evm`, `solana` and `sui`
 
   solc-versions:
     required: false
@@ -135,6 +135,11 @@ inputs:
       Additional options to pass to the `cargo certora-sbf` command. This can be used to specify
       additional flags or configurations for the Certora SBF tool. See https://github.com/Certora/cargo-certora-sbf
       for more details on available options.
+  sui-version:
+    required: false
+    default: "testnet"
+    description: |-
+      The version of Sui to install. If not specified, the latest testnet version will be used.
   use-hard-links:
     required: false
     default: "true"
@@ -320,6 +325,14 @@ runs:
         additional-versions: ${{ inputs.rust-additional-versions }}
         certora-sbf-version: ${{ inputs.certora-sbf-version }}
         certora-sbf-options: ${{ inputs.certora-sbf-options }}
+    
+    - name: Install sui
+      if: ${{ inputs.ecosystem == 'sui' }}
+      shell: bash
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+        export PATH="/root/.local/bin:$PATH"
+        suiup install sui@${{ inputs.sui-version }}
 
     - name: Certora Run
       id: certora-run

@@ -119,3 +119,19 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+
+  sui-violated-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sui Violated Rules
+        uses: ./
+        with:
+          working-directory: tests/sui
+          ecosystem: sui
+          configurations: |-
+            Default.conf
+          job-name: "Sui Violated Rules"
+          server: "staging"
+          debug-level: 3
+          certora-key: ${{ secrets.CERTORAKEY }}
