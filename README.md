@@ -160,7 +160,7 @@ General inputs for:
 - `cli-release` - Release type of the `certora-cli` to use (optional). Default is `stable`.
   Options are `stable`, `alpha`, `beta`, or a custom branch name. Everything other than
   `stable` should only be used for testing purposes and is not recommended for production use.
-- `ecosystem` - Name of the CLI ecosystem, the options are `evm`, `solana` and `sui`. `evm` is the default ecosystem.
+- `ecosystem` - Name of the CLI ecosystem, the options are `evm`, `solana`, and `sui`. `evm` is the default ecosystem.
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
