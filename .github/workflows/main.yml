@@ -131,7 +131,7 @@ jobs:
           ecosystem: sui
           cli-release: beta
           configurations: |-
-            Default.conf
+            Hello.conf
           job-name: "Sui Violated Rules"
           server: "staging"
           debug-level: 3
