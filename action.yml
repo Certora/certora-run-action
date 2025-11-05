@@ -344,7 +344,7 @@ runs:
 
         if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == "false" ]]; then
           CERTORA_COMPILATION_STEPS_ONLY=true bash "$RUN_CERTORA" && \
-          bash "$GH_APP_INTEGRATIfON" && \
+          bash "$GH_APP_INTEGRATION" && \
           CERTORA_COMPILATION_STEPS_ONLY=false bash "$RUN_CERTORA"
         else
           bash "$RUN_CERTORA"
