@@ -192,7 +192,8 @@ Solana specific inputs (`ecosystem: solana`):
 
 Sui specific inputs (`ecosystem: sui`):
 
-- `sui-version` - The version of Sui to install. Can be a specific version (e.g., `1.2.3`), or a channel/alias such as `testnet`, `mainnet`, or `devnet`.
+- `install-sui-cli` - Install Sui CLI (optional). Default is `true`.
+- `sui-version` - The version of Sui CLI to install. Can be a specific version (e.g., `1.2.3`), or a channel/alias such as `testnet`, `mainnet`, or `devnet`.
 
 ### Comments on the Pull Request
 

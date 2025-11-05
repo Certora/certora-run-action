@@ -120,11 +120,11 @@ jobs:
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
 
-  sui-violated-rules:
+  sui-verified-rules:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Sui Violated Rules
+      - name: Sui Verified Rules
         uses: ./
         with:
           working-directory: tests/sui
