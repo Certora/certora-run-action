@@ -135,16 +135,6 @@ inputs:
       Additional options to pass to the `cargo certora-sbf` command. This can be used to specify
       additional flags or configurations for the Certora SBF tool. See https://github.com/Certora/cargo-certora-sbf
       for more details on available options.
-  install-sui-cli:
-    required: false
-    default: "true"
-    description: |-
-      Whether to install the Sui CLI. Default is `true`.
-  sui-version:
-    required: false
-    default: "testnet"
-    description: |-
-      The version of Sui to install. Can be a specific version (e.g., `1.2.3`), or a channel/alias such as `testnet`, `mainnet`, or `devnet`.
   use-hard-links:
     required: false
     default: "true"
@@ -330,14 +320,6 @@ runs:
         additional-versions: ${{ inputs.rust-additional-versions }}
         certora-sbf-version: ${{ inputs.certora-sbf-version }}
         certora-sbf-options: ${{ inputs.certora-sbf-options }}
-    
-    - name: Install Sui CLI
-      if: ${{ inputs.ecosystem == 'sui' && inputs.install-sui-cli == 'true' }}
-      shell: bash
-      run: |
-        curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
-        export PATH="/$HOME/.local/bin:$PATH"
-        suiup install -y sui@${{ inputs.sui-version }}
 
     - name: Certora Run
       id: certora-run

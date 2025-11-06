@@ -190,10 +190,17 @@ Solana specific inputs (`ecosystem: solana`):
 - `rust-setup` - Whether to set up Rust for Solana. The default is `true`. If you need more control over the Solana installation or options, you could use the
   [Certora Rust Setup Action](https://github.com/Certora/rust-setup-action) directly in your workflow.
 
-Sui specific inputs (`ecosystem: sui`):
+### 🧩 Note: Installing the Sui CLI
 
-- `install-sui-cli` - Install Sui CLI (optional). Default is `true`.
-- `sui-version` - The version of Sui CLI to install. Can be a specific version (e.g., `1.2.3`), or a channel/alias such as `testnet`, `mainnet`, or `devnet`.
+This action does not automatically install the Sui CLI.
+If your workflow requires running Sui commands, make sure the CLI is installed beforehand.
+You can install it manually using the following commands:
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+suiup install -y sui@testnet
+```
 
 ### Comments on the Pull Request
 
