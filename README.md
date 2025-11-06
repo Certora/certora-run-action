@@ -197,7 +197,7 @@ If your workflow requires running Sui commands, make sure the CLI is installed b
 You can install it manually using the following commands:
 
 ```bash
-curl -sSfL https://raw.githubusercontent.com/Mystenlabs/suiup/main/install.sh | sh
+curl -sSfL https://raw.githubusercontent.com/MystenLabs/suiup/main/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 suiup install -y sui@testnet
 ```
