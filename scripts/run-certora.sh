@@ -37,8 +37,10 @@ if [[ "$CERTORA_ECOSYSTEM" == "evm" ]]; then
   CLI_ENTRYPOINT="certoraRun"
 elif [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
   CLI_ENTRYPOINT="certoraSolanaProver"
+elif [[ "$CERTORA_ECOSYSTEM" == "sui" ]]; then
+  CLI_ENTRYPOINT="certoraSuiProver"
 else
-  echo "::error title=Unsupported Ecosystem::Ecosystem $CERTORA_ECOSYSTEM is not supported. Please use 'evm' or 'solana'."
+  echo "::error title=Unsupported Ecosystem::Ecosystem $CERTORA_ECOSYSTEM is not supported. Please use 'evm', 'solana', or 'sui'."
   exit 1
 fi
 echo "Using cli entrypoint: $CLI_ENTRYPOINT"

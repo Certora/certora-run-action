@@ -122,6 +122,20 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Submit verification jobs to Certora Sui Prover
+      - name: Submit verification jobs to Certora Sui Prover
+        uses: Certora/certora-run-action@v2
+        with:
+          working-directory: tests/sui
+          # Specify sui ecosystem
+          ecosystem: sui
+          configurations: |-
+            Default.conf
+          job-name: "Verified Sui Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Permissions
@@ -146,7 +160,7 @@ General inputs for:
 - `cli-release` - Release type of the `certora-cli` to use (optional). Default is `stable`.
   Options are `stable`, `alpha`, `beta`, or a custom branch name. Everything other than
   `stable` should only be used for testing purposes and is not recommended for production use.
-- `ecosystem` - Name of the CLI ecosystem, the options are `evm` or `solana`. `evm` is the default ecosystem.
+- `ecosystem` - Name of the CLI ecosystem, the options are `evm`, `solana`, and `sui`. `evm` is the default ecosystem.
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
@@ -175,6 +189,18 @@ Solana specific inputs (`ecosystem: solana`):
 - `certora-sbf-options` - Additional options to pass to the `cargo certora-sbf` command. This can be used to specify additional flags or configurations for the Certora SBF tool.
 - `rust-setup` - Whether to set up Rust for Solana. The default is `true`. If you need more control over the Solana installation or options, you could use the
   [Certora Rust Setup Action](https://github.com/Certora/rust-setup-action) directly in your workflow.
+
+### 🧩 Note: Installing the Sui CLI
+
+This action does not automatically install the Sui CLI.
+If your workflow requires running Sui commands, make sure the CLI is installed beforehand.
+You can install it manually using the following commands:
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/MystenLabs/suiup/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+suiup install -y sui@testnet
+```
 
 ### Comments on the Pull Request
 

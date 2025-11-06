@@ -119,3 +119,30 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+
+  sui-verified-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Sui CLI
+        run: |
+          sui_cli_version="testnet-v1.60.0"
+          sui_cli_os="ubuntu-x86_64"
+          sui_bin_path="$HOME/.local/bin"
+
+          mkdir -p "$sui_bin_path"
+          curl -LO  "https://github.com/MystenLabs/sui/releases/download/$sui_cli_version/sui-$sui_cli_version-$sui_cli_os.tgz"
+          tar -xzf sui-$sui_cli_version-$sui_cli_os.tgz -C "$sui_bin_path" ./sui
+          export PATH="$sui_bin_path:$PATH"
+      - name: Sui Verified Rules
+        uses: ./
+        with:
+          working-directory: tests/sui
+          ecosystem: sui
+          cli-release: beta
+          configurations: |-
+            Hello.conf
+          job-name: "Sui Violated Rules"
+          server: "staging"
+          debug-level: 3
+          certora-key: ${{ secrets.CERTORAKEY }}

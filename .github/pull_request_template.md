@@ -18,6 +18,7 @@ Before submitting this PR, ensure that all tests pass **and** meet the following
 | **violated_rules**        | ✅ Passed, with violations found | 🔴 No                | 🟢 Yes         |
 | **verified_rules**        | ✅ Passed without violations     | 🔴 No                | 🟢 Yes         |
 | **solana_violated_rules** | ✅ Passed, with violations found | 🔴 No                | 🟢 Yes         |
+| **sui_verified_rules**    | ✅ Passed without violations     | 🔴 No                | 🟢 Yes         |
 
 > Please verify that your changes meet the above conditions for each category of tests.  
 > If something doesn't match, investigate before submitting the PR.
