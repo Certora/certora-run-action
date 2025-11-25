@@ -378,7 +378,7 @@ runs:
         echo "[Download Logs](${{ steps.upload-logs.outputs.artifact-url }})" >> "${{ steps.setup-env.outputs.report_file }}"
 
     - name: Add report comment
-      if: ${{ (failure() || inputs.comment-fail-only == 'false') && steps.certora-run.outputs.total_jobs > 0 }}
+      if: ${{ (failure() || inputs.comment-fail-only == 'false') && (steps.certora-run.outputs.total_jobs > 0 || steps.certora-run.outputs.failed_jobs > 0) }}
       uses: mshick/add-pr-comment@v2
       with:
         message-id: ${{ steps.setup-env.outputs.group_id }}
