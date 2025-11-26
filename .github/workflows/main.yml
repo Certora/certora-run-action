@@ -146,3 +146,20 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+
+  soroban-verified-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: run configs
+        uses: ./
+        with:
+          working-directory: tests/soroban
+          ecosystem: soroban
+          cli-release: stable
+          configurations: |-
+            simple.conf
+          job-name: "Soroban rule"
+          server: "staging"
+          debug-level: 3
+          certora-key: ${{ secrets.CERTORAKEY }}

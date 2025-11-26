@@ -136,6 +136,20 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Submit verification jobs to Certora Soroban Prover
+      - name: Submit verification jobs to Certora Soroban Prover
+        uses: Certora/certora-run-action@v2
+        with:
+          working-directory: tests/soroban
+          # Specify Soroban ecosystem
+          ecosystem: soroban
+          configurations: |-
+            Default.conf
+          job-name: "Verified Soroban Rules"
+          certora-key: ${{ secrets.CERTORAKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Permissions
@@ -160,7 +174,7 @@ General inputs for:
 - `cli-release` - Release type of the `certora-cli` to use (optional). Default is `stable`.
   Options are `stable`, `alpha`, `beta`, or a custom branch name. Everything other than
   `stable` should only be used for testing purposes and is not recommended for production use.
-- `ecosystem` - Name of the CLI ecosystem, the options are `evm`, `solana`, and `sui`. `evm` is the default ecosystem.
+- `ecosystem` - Name of the CLI ecosystem, the options are `evm`, `solana`, `soroban`, and `sui`. `evm` is the default ecosystem.
 - `server` - Server to run the tests on (optional). Default is `production`.
 - `job-name` - Name of the job (optional).
 - `install-java` - Install Java for type checking (optional). Default is `true`.
@@ -201,6 +215,29 @@ curl -sSfL https://raw.githubusercontent.com/MystenLabs/suiup/main/install.sh | 
 export PATH="$HOME/.local/bin:$PATH"
 suiup install -y sui@testnet
 ```
+
+### 🧩 Note: Installing the Soroban Environment
+
+Specifying the Soroban ecosystem **does not** automatically install the Rust toolchain required for building Soroban WASM from source.
+If you plan to compile Soroban contracts in your workflow, ensure that all dependencies are available.
+
+You typically need:
+
+- **`just` and the Rust toolchain**. These can be installed via GitHub Actions:
+  - `actions-rust-lang/setup-rust-toolchain@v1`
+  - `extractions/setup-just@v3`
+
+- **The WASM compilation target** required by Soroban:
+  ```sh
+  rustup target add wasm32-unknown-unknown
+  ```
+
+- **A Cargo lockfile.**
+  If you do not want to commit it in your repository, you can generate it from the action
+  by running, for example:
+  ```sh
+  cargo update -p cvlr-soroban
+  ```
 
 ### Comments on the Pull Request
 

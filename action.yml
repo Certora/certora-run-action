@@ -57,7 +57,7 @@ inputs:
     default: evm
     description: |-
       The ecosystem to use for the `certoraRun` command. Default is `evm`.
-      Options: `evm`, `solana` and `sui`.
+      Options: `evm`, `solana`, `sui`, `soroban`.
 
   solc-versions:
     required: false
