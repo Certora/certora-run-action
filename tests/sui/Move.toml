@@ -3,7 +3,11 @@ name = "Hello"
 edition = "2024.beta"
 
 [dependencies]
+# Pin to the same exact commit
 MoveStdlib = { override = true, git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/move-stdlib", rev = "b40cdedf4df6f0deaa4a46c1bf99c57029160202" }
+Sui = { override = true, git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "b40cdedf4df6f0deaa4a46c1bf99c57029160202" }
+SuiSystem = { override = true, git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-system", rev = "b40cdedf4df6f0deaa4a46c1bf99c57029160202" }
+Bridge = { override = true, git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/bridge", rev = "b40cdedf4df6f0deaa4a46c1bf99c57029160202" }
 cvlm = { git = "https://github.com/Certora/cvl-move-proto.git", subdir = "cvlm", rev = "3cfe7967c9c24dac20759b507cbdd9289fb3576b" }
 
 [addresses]
