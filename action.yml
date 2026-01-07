@@ -240,16 +240,18 @@ runs:
         echo "solc_cache_key=$(md5sum <<< "'${{ inputs.solc-versions }}'" | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
 
         # Remove leading spaces, trailing spaces, comments, and empty lines
-        CERTORA_CONFIGURATIONS="$(sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<< "$CERTORA_RAW_CONFIGURATIONS" | sort -u)"
-        CERTORA_CONFIGURATIONS_HASH="$(md5sum <<< "$CERTORA_CONFIGURATIONS" | awk '{ print $1 }')"
+        CERTORA_CONFIGURATIONS_FILE="/tmp/certora-logs/REPORT-${GROUP_ID}-configurations"
+        sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<< "$CERTORA_RAW_CONFIGURATIONS" | sort -u > "$CERTORA_CONFIGURATIONS_FILE"
+
+        CERTORA_CONFIGURATIONS_HASH="$(md5sum < "$CERTORA_CONFIGURATIONS_FILE" | awk '{ print $1 }')"
 
         echo "CERTORA_ACTION_REF=$CERTORA_ACTION_REF" >> "$GITHUB_ENV"
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
         echo "certora_subdomain=$CERTORA_SUBDOMAIN" >> "$GITHUB_OUTPUT"
         echo "CERTORA_API_SUBDOMAIN=$CERTORA_API_SUBDOMAIN" >> "$GITHUB_ENV"
-        echo "CERTORA_CONFIGURATIONS=$CERTORA_CONFIGURATIONS" >> "$GITHUB_ENV"
-        echo "certora_configurations=$CERTORA_CONFIGURATIONS" >> "$GITHUB_OUTPUT"
+        echo "CERTORA_CONFIGURATIONS_FILE=$CERTORA_CONFIGURATIONS_FILE" >> "$GITHUB_ENV"
         echo "CERTORA_CONFIGURATIONS_HASH=$CERTORA_CONFIGURATIONS_HASH" >> "$GITHUB_ENV"
+        echo "certora_configurations_file=$CERTORA_CONFIGURATIONS_FILE" >> "$GITHUB_OUTPUT"
         echo "certora_configurations_hash=$CERTORA_CONFIGURATIONS_HASH" >> "$GITHUB_OUTPUT"
       env:
         CERTORA_ACTION_REF: ${{ github.action_ref }}
