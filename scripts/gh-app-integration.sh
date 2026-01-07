@@ -55,7 +55,7 @@ PAYLOAD=$(jq -n \
   --arg commit "$COMMIT_SHA" \
   --arg action_ref "$CERTORA_ACTION_REF" \
   --arg config_hash "$CERTORA_CONFIGURATIONS_HASH" \
-  --arg replace_comments "$CERTORA_REPLACE_COMMENTS" \
+  --argjson replace_comments "$CERTORA_REPLACE_COMMENTS" \
   --argjson pr_number "${PR_NUMBER:-null}" \
   '{group_id: $group_id, commit: $commit, action_ref: $action_ref, config_hash: $config_hash, replace_comments: $replace_comments, pr_number: $pr_number}')
 
