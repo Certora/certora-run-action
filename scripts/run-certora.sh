@@ -13,9 +13,6 @@ pids=()
 configs=()
 logs=()
 
-# Remove leading spaces, trailing spaces, comments, and empty lines
-CERTORA_CONFIGURATIONS="$(sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<<"$CERTORA_CONFIGURATIONS")"
-
 IFS=$'\n' read -rd '' -a confs <<<"$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
 
 echo "Configurations: ${confs[*]}"
