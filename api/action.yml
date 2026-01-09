@@ -27,7 +27,7 @@ runs:
     - name: Call Certora API
       shell: bash
       run: |
-        ls -la "${{ github.action_path }}"
+        ls -la "${{ github.action_path }}/.."
         CERTORA_SUBDOMAIN="prover"
         CERTORA_API_SUBDOMAIN="data-api"
         if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
@@ -37,6 +37,6 @@ runs:
           CERTORA_SUBDOMAIN="vaas-stg"
           CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
-        bash "${{ github.action_path }}/scripts/call-api.sh"
+        bash "${{ github.action_path }}/../scripts/call-api.sh"
       env:
         CERTORA_COMMAND: ${{ inputs.certora-command }}
