@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/github-action.json
+name: Certora Run Action API
+description: |-
+  GitHub Action to call Certora API to cancel or refresh a job group.
+  This action requires that the Certora GitHub App is installed on the repository.
+
+branding:
+  color: blue
+  icon: cloud-lightning
+
+inputs:
+  certora-command:
+    required: true
+    description: |-
+      Command to send to the Certora API. It should be in the format
+      "<command> <group_id>", where <command> is either "cancel" or "refresh",
+      and <group_id> is the identifier of a job group to which the command applies.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Call Certora API
+      shell: bash
+      run: |
+        ls -la "${{ github.action_path }}"
+        CERTORA_SUBDOMAIN="prover"
+        CERTORA_API_SUBDOMAIN="data-api"
+        if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
+          CERTORA_SUBDOMAIN="vaas-dev"
+          CERTORA_API_SUBDOMAIN="data-api-dev"
+        elif [[ "${{ inputs.server }}" == "staging" || "${{ inputs.server }}" == "vaas-stg" ]]; then
+          CERTORA_SUBDOMAIN="vaas-stg"
+          CERTORA_API_SUBDOMAIN="data-api-stg"
+        fi
+        bash "${{ github.action_path }}/scripts/call-api.sh"
+      env:
+        CERTORA_COMMAND: ${{ inputs.certora-command }}
