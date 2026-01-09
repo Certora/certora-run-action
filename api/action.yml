@@ -15,6 +15,11 @@ inputs:
       Command to send to the Certora API. It should be in the format
       "<command> <group_id>", where <command> is either "cancel" or "refresh",
       and <group_id> is the identifier of a job group to which the command applies.
+  server:
+    required: false
+    description: |-
+      The Certora server to use. Can be "production" (default). "vaas-dev" or "vaas-stg".
+    default: "production"
 
 runs:
   using: "composite"
