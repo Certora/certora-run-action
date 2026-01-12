@@ -39,10 +39,16 @@ if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
   exit 1
 fi
 
+GHINT_LOG="$CERTORA_LOG_DIR/gh-call.json"
+
+CERT_GH_APP_LINK='https://github.com/apps/certora-run'
+CERT_GH_ACTION_LINK='https://github.com/Certora/certora-run-action'
+ERROR_MSG="There was an issue executing the API call (Please have a look at $CERT_GH_APP_LINK, $CERT_GH_ACTION_LINK)."
+
 # Make API request to verify GitHub App integration
 curl -sSL --proto '=https' --tlsv1.2 --retry 10 --max-time 60 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_API_SUBDOMAIN.certora.com/v1/github-app/$endpoint?groupId=$group_id" \
   -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" || {
+  -H "Content-Type: application/json" >"$GHINT_LOG" || {
   echo "::error title=Certora GitHub Application Integration Missing::$(jq -r '"Error \(.status_code): \(.detail)"' "$GHINT_LOG") - $ERROR_MSG"
   cat "$GHINT_LOG"
   exit 1
