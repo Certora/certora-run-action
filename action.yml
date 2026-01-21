@@ -364,7 +364,7 @@ runs:
           }'
 
     - name: Upload Logs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       id: upload-logs
       if: always()
       with:
