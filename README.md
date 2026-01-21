@@ -224,10 +224,12 @@ If you plan to compile Soroban contracts in your workflow, ensure that all depen
 You typically need:
 
 - **`just` and the Rust toolchain**. These can be installed via GitHub Actions:
+
   - `actions-rust-lang/setup-rust-toolchain@v1`
   - `extractions/setup-just@v3`
 
 - **The WASM compilation target** required by Soroban:
+
   ```sh
   rustup target add wasm32-unknown-unknown
   ```
@@ -235,9 +237,58 @@ You typically need:
 - **A Cargo lockfile.**
   If you do not want to commit it in your repository, you can generate it from the action
   by running, for example:
+
   ```sh
   cargo update -p cvlr-soroban
   ```
+
+## Certora API Integration
+
+You can also use this action to call Certora API commands such as cancelling or
+refreshing jobs in a group. To do so, you can create a workflow like this:
+
+```yml
+name: Certora API
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        required: true
+        description: |
+          The Certora API command to execute. Options are:
+          - `cancel <group_id>`: Cancel all jobs in the specified group.
+          - `refresh <group_id>`: Refresh the status of all jobs in the specified group.
+      server:
+        required: true
+        type: choice
+        description: |
+          The Certora server to use. Either production, staging, or vaas-dev.
+          Default is production.
+        default: production
+        options:
+          - production
+          - staging
+          - vaas-dev
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  certora_api_command:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+      - uses: Certora/certora-run-action/api@v2
+        with:
+          certora-command: ${{ github.event.inputs.command }}
+          server: ${{ github.event.inputs.server }}
+```
+
+Then, you can trigger this workflow manually from the GitHub Actions UI, providing the
+command and the server as inputs.
 
 ### Comments on the Pull Request
 
