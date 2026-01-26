@@ -19,7 +19,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Submit verification jobs to Certora Prover
         uses: Certora/certora-run-action@v2
         with:
@@ -78,13 +78,13 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
       # (Optional) Add installation steps for your project
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
       - name: Install dependencies
         run: npm install
 
@@ -228,6 +228,7 @@ You typically need:
   - `extractions/setup-just@v3`
 
 - **The WASM compilation target** required by Soroban:
+
   ```sh
   rustup target add wasm32-unknown-unknown
   ```
