@@ -30,8 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
       - uses: ./api/
         with:
           certora-command: ${{ github.event.inputs.command }}

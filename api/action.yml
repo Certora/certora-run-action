@@ -21,6 +21,11 @@ inputs:
     description: |-
       The Certora server to use. Can be "production" (default). "vaas-dev" or "vaas-stg".
     default: "production"
+  debug-level:
+    default: "0"
+    description: |-
+      The debug level to use for the action command. Default is `0`.
+      Options: `0`, `1`, `2`, or `3`.
 
 runs:
   using: "composite"
@@ -28,7 +33,6 @@ runs:
     - name: Call Certora API
       shell: bash
       run: |
-        ls -la "${{ github.action_path }}/.."
         RUN_ID="$(cat /proc/sys/kernel/random/uuid)"
         CERTORA_LOG_DIR="/tmp/certora-logs/$RUN_ID"
         CERTORA_API_SUBDOMAIN="data-api"
@@ -38,6 +42,8 @@ runs:
           CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
         export CERTORA_API_SUBDOMAIN
+        export CERTORA_LOG_DIR
         bash "${{ github.action_path }}/../scripts/call-api.sh"
       env:
         CERTORA_COMMAND: ${{ inputs.certora-command }}
+        DEBUG_LEVEL: "${{ inputs.debug-level }}"

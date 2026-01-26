@@ -224,7 +224,6 @@ If you plan to compile Soroban contracts in your workflow, ensure that all depen
 You typically need:
 
 - **`just` and the Rust toolchain**. These can be installed via GitHub Actions:
-
   - `actions-rust-lang/setup-rust-toolchain@v1`
   - `extractions/setup-just@v3`
 
@@ -279,8 +278,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
       - uses: Certora/certora-run-action/api@v2
         with:
           certora-command: ${{ github.event.inputs.command }}
