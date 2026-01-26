@@ -25,7 +25,7 @@ jobs:
   syntax-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -36,8 +36,8 @@ jobs:
   fail_to_start:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
       - run: npm install
       - name: Fail to Start
         uses: ./
@@ -67,8 +67,8 @@ jobs:
   violated_rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
       - run: npm install
       - name: Violated Rules
         uses: ./
@@ -87,8 +87,8 @@ jobs:
   verified_rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
       - run: npm install
       - name: Verified Rules
         uses: ./
@@ -107,7 +107,7 @@ jobs:
   solana-violated-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Solana Violated Rules
         uses: ./
         with:
@@ -123,7 +123,7 @@ jobs:
   sui-verified-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Sui CLI
         run: |
           sui_cli_version="testnet-v1.60.0"
@@ -150,7 +150,7 @@ jobs:
   soroban-verified-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: run configs
         uses: ./
         with:
