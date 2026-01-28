@@ -13,20 +13,21 @@ pids=()
 configs=()
 logs=()
 
-# Remove leading spaces, trailing spaces, comments, and empty lines
-CERTORA_CONFIGURATIONS="$(sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<<"$CERTORA_CONFIGURATIONS")"
 
-IFS=$'\n' read -rd '' -a confs <<<"$(echo "$CERTORA_CONFIGURATIONS" | sort -u)"
+# Read configurations from file specified by $CERTORA_CONFIGURATIONS_FILE
+if [[ -z "$CERTORA_CONFIGURATIONS_FILE" ]]; then
+  echo "::error title=Missing Configurations File::CERTORA_CONFIGURATIONS_FILE is not set."
+  exit 1
+fi
+
+IFS=$'\n' read -rd '' -a confs < "$CERTORA_CONFIGURATIONS_FILE"
 
 echo "Configurations: ${confs[*]}"
 
 if [[ ${#confs[@]} -gt 1 ]]; then
   # Extract the common prefix from the configurations
-  # Sed script to extract the common prefix
-  # For the first line, copy pattern space to hold space and delete the pattern space
-  # Append a newline and the hold space to the pattern space, capture the common prefix
-  # Copy the pattern space to the hold space and delete the pattern space until the last line
-  common_prefix="$(echo "$CERTORA_CONFIGURATIONS" | sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' | tr -d '\n')"
+  # Use the contents of the file for prefix extraction
+  common_prefix="$(sed -e '1{h;d;}' -e 'G;s,\(.*\).*\n\1.*,\1,;s,\(.*[/ ]\).*$,\1,;h;$!d' "$CERTORA_CONFIGURATIONS_FILE" | tr -d '\n')"
 elif [[ "${confs[0]}" == */* ]]; then
   # Keep the file name only
   common_prefix="$(echo "${confs[0]}" | sed 's/\(.*\/\)[^\/]*$/\1/')"

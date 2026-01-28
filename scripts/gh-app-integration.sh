@@ -16,6 +16,8 @@ required_vars=(
   ACTIONS_ID_TOKEN_REQUEST_TOKEN
   ACTIONS_ID_TOKEN_REQUEST_URL
   GITHUB_EVENT_PATH
+  CERTORA_CONFIGURATIONS_HASH
+  CERTORA_REPLACE_COMMENTS
 )
 
 missing_args=false
@@ -52,8 +54,10 @@ PAYLOAD=$(jq -n \
   --arg group_id "$GROUP_ID" \
   --arg commit "$COMMIT_SHA" \
   --arg action_ref "$CERTORA_ACTION_REF" \
+  --arg config_hash "$CERTORA_CONFIGURATIONS_HASH" \
+  --argjson replace_comments "$CERTORA_REPLACE_COMMENTS" \
   --argjson pr_number "${PR_NUMBER:-null}" \
-  '{group_id: $group_id, commit: $commit, action_ref: $action_ref, pr_number: $pr_number}')
+  '{group_id: $group_id, commit: $commit, action_ref: $action_ref, config_hash: $config_hash, replace_comments: $replace_comments, pr_number: $pr_number}')
 
 # Make API request to verify GitHub App integration
 curl -sSL --proto '=https' --tlsv1.2 --retry 10 --max-time 60 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_API_SUBDOMAIN.certora.com/v1/github-app/verify" \

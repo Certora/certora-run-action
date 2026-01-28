@@ -1,0 +1,36 @@
+name: Certora API
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        required: true
+        description: |
+          The Certora API command to execute. Options are:
+          - `cancel <group_id>`: Cancel all jobs in the specified group.
+          - `refresh <group_id>`: Refresh the status of all jobs in the specified group.
+      server:
+        required: true
+        type: choice
+        description: |
+          The Certora server to use. Either production, staging, or vaas-dev.
+          Default is production.
+        default: production
+        options:
+          - production
+          - staging
+          - vaas-dev
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  certora_api_command:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./api/
+        with:
+          certora-command: ${{ github.event.inputs.command }}
+          server: ${{ github.event.inputs.server }}
