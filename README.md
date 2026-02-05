@@ -277,7 +277,7 @@ jobs:
   certora_api_command:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: Certora/certora-run-action/api@v2
         with:
           certora-command: ${{ github.event.inputs.command }}
