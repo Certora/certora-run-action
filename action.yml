@@ -380,7 +380,7 @@ runs:
           }'
 
     - name: Upload Logs
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       id: upload-logs
       if: always()
       with:
