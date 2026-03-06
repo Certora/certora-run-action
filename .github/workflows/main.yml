@@ -84,6 +84,27 @@ jobs:
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
 
+  violated_rules_hide_review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+      - run: npm install
+      - name: Violated Rules
+        uses: ./
+        with:
+          configurations: |-
+            tests/evm/conf-verified.conf
+            tests/evm/conf-violations.conf --rule invertible
+            tests/evm/conf-verified.conf --method "counter()"
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-violations.conf
+          solc-versions: 0.7.6 0.8.1
+          job-name: "Violated Rules"
+          server: "production"
+          debug-level: 3
+          certora-key: ${{ secrets.CERTORAKEY }}
+
   verified_rules:
     runs-on: ubuntu-latest
     steps:
@@ -103,6 +124,27 @@ jobs:
           server: "vaas-dev"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+
+  verified_rules_hide_review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+      - run: npm install
+      - name: Verified Rules
+        uses: ./
+        with:
+          configurations: |-
+            tests/evm/conf-verified.conf
+            tests/evm/conf-verified.conf --rule monotone --method "counter()"
+            tests/evm/conf-verified.conf --rule invertible
+          solc-versions: 0.7.6 0.8.1
+          job-name: "Verified Rules without review"
+          server: "vaas-dev"
+          debug-level: 3
+          certora-key: ${{ secrets.CERTORAKEY_EXTERNAL }}
+          gh-review: "failure"
+          gh-review-jobs: "failed"
 
   solana-violated-rules:
     runs-on: ubuntu-latest
