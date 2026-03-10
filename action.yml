@@ -161,6 +161,10 @@ inputs:
     description: |-
       Which jobs to include in the GitHub review comment. Options are `all`, `failed`.
       Default is `all`.
+  pre-configuration:
+    required: false
+    description: |-
+      Test configurations.
 
 runs:
   using: "composite"
@@ -375,6 +379,7 @@ runs:
         CERTORA_REPLACE_COMMENTS: "${{ inputs.replace-comments }}"
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
+        CERTORA_PRE_CONFIGURATION: "${{ inputs.pre-configuration }}"
 
     - name: Add GH Status
       if: ${{ steps.certora-run.outputs.total_jobs > 0}}

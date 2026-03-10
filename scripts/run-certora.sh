@@ -51,6 +51,15 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# If CERTORA_PRE_CONFIGURATION is set, run it before all other configurations in the root
+# This may generate some artifacts that will be used in the other configurations.
+if [[ -n "$CERTORA_PRE_CONFIGURATION" ]]; then
+  echo "Running pre-configuration: $CERTORA_PRE_CONFIGURATION"
+  uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "$CERTORA_PRE_CONFIGURATION" \
+    --compilation_steps_only \
+    --server "$CERTORA_SERVER"
+fi
+
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
 for conf_line in "${confs[@]}"; do
