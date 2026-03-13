@@ -165,6 +165,10 @@ besides the permissions, the action requires the following secrets:
 
 - `CERTORAKEY` - API key for Certora Prover.
 
+The best practice is to specify permissions at the job level in your workflow file, as
+shown in the example above. This way, you can ensure that the permissions are only
+granted to the specific job that requires them.
+
 ### Inputs
 
 General inputs for:
@@ -310,6 +314,11 @@ In case of any troubleshooting we recommend checking the logs of the workflow an
 verify that all parameters are set correctly in the `with` block of the action
 in your workflow file as GitHub does not validate the input or raise any errors on
 additional or misspelled parameters.
+
+### Permissions Errors
+
+If you encounter permissions errors, make sure that you have set the required
+[permissions](#permissions) in your workflow file for this specific job.
 
 ### GitHub Application is not Available Error
 
