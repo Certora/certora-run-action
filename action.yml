@@ -249,6 +249,19 @@ runs:
           CERTORA_API_SUBDOMAIN="data-api-stg"
         fi
 
+        TARGET_URL="https://$CERTORA_SUBDOMAIN.certora.com"
+
+        # Set TARGET_URL path depending on repository visibility
+        if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+          # Private repository
+          TARGET_URL="$TARGET_URL?text=$SHORT_COMMIT_SHA&allUsers=true&groupIds=$GROUP_ID"
+        else
+          # Public repository
+          TARGET_URL="$TARGET_URL/v1/github-app/$GROUP_ID/jobs"
+        fi
+        echo "TARGET_URL=$TARGET_URL" >> "$GITHUB_ENV"
+        echo "target_url=$TARGET_URL" >> "$GITHUB_OUTPUT"
+
         echo "solc_cache_key=$(md5sum <<< "'${{ inputs.solc-versions }}'" | awk '{ print $1 }')" >> "$GITHUB_OUTPUT"
 
         # Remove leading spaces, trailing spaces, comments, and empty lines
@@ -385,10 +398,10 @@ runs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${GITHUB_TOKEN}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/${{ github.repository }}/statuses/$COMMIT_SHA \
+          "https://api.github.com/repos/${{ github.repository }}/statuses/$COMMIT_SHA" \
           -d '{
             "state":"pending",
-            "target_url":"https://${{ steps.setup-env.outputs.certora_subdomain }}.certora.com/?text=${{ steps.setup-env.outputs.short_sha }}&allUsers=true&groupIds=${{ steps.setup-env.outputs.group_id }}",
+            "target_url":"${{ steps.setup-env.outputs.target_url }}",
             "description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.",
             "context":"certora-run/${{ steps.setup-env.outputs.group_id }}"
           }'

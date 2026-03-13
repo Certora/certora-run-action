@@ -5,7 +5,7 @@ on your contracts in parallel, receive the results as a comment on the pull requ
 
 ## Usage
 
-To use this action, add the [Certora Run Application] to the repository and add
+To use this action, install the [Certora Run Application] on the repository and add
 the following to your GitHub Actions workflow:
 
 ```yaml
@@ -165,6 +165,10 @@ besides the permissions, the action requires the following secrets:
 
 - `CERTORAKEY` - API key for Certora Prover.
 
+The best practice is to specify permissions at the job level in your workflow file, as
+shown in the example above. This way, you can ensure that the permissions are only
+granted to the specific job that requires them.
+
 ### Inputs
 
 General inputs for:
@@ -180,7 +184,7 @@ General inputs for:
 - `install-java` - Install Java for type checking (optional). Default is `true`.
 - `compilation-steps-only` - Compile the spec and the code without sending a
   verification request to the cloud (optional). Default is `false`.
-- `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default it `true`.
+- `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default is `true`.
 - `certora-key` - API key for Certora Prover.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 - `use-hard-links` - Whether to use hard links when copying files (optional). If you expect to modify the files in the run directory during `certoraRun` execution, you should set this to `false`.
@@ -303,6 +307,63 @@ And finally, once the first job finishes, GH App will add and update a review wi
 
 ![GitHub PR Review](/static/reviews.png?raw=true "GitHub PR Review")
 
+## Troubleshooting
+
+In case of any troubleshooting we recommend checking the logs of the workflow and using
+`debug-level: 3` input to get more detailed logs from the action. Also make sure to
+verify that all parameters are set correctly in the `with` block of the action
+in your workflow file as GitHub does not validate the input or raise any errors on
+additional or misspelled parameters.
+
+### Permissions Errors
+
+If you encounter permissions errors, make sure that you have set the required
+[permissions](#permissions) in your workflow file for this specific job.
+
+### GitHub Application is not Available Error
+
+If you encounter this error, make sure that you have installed the [Certora Run Application]
+and it's available for this repository.
+
+### CERTORAKEY is Missing Error
+
+The most common reasons for this issue are:
+
+1. The secret is not set in the repository settings. Make sure to add the `CERTORAKEY`
+   secret in your repository settings. If you're using environment secrets, make sure to
+   add it there and that the environment is selected in the workflow ([GitHub Actions Environment]).
+2. The secret is not passed to the action. Make sure to specify the `certora-key` input
+   in your workflow file and set it to `${{ secrets.CERTORAKEY }}`.
+3. The secret is not accessible due to repository permissions. Ensure that the workflow
+   has access to the secret, especially if it's in a forked repository. In case of forks,
+   secrets are not available by default for security reasons. There is an option to use
+   a different action trigger like `pull_request_target`, but it should be used with
+   caution as it can pose security risks ([Pull Request Target Security]). Other options
+   include using different triggers and separate workflows.
+
+### Workflow Fails with "Failed to start all jobs" Error
+
+This error indicates that one or more Certora Prover jobs failed to start. In order to
+identify the root cause of the issue, review the logs of the workflow that are included
+in the GitHub Actions UI as workflow artifacts and in the PR comment.
+
+Common reasons for this error include:
+
+- Missing configuration files or incorrect paths specified in the `configurations`
+  input.
+- Missing dependencies or munge steps required for the verification process.
+
+### Workflow Does Not Start
+
+In case that the workflow does not start at all:
+
+1. Make sure that the GitHub Actions are enabled for the repository.
+2. Make sure that the workflow already exists in the default branch of the repository
+   and that the trigger is correct.
+3. Make sure that the workflow file is valid and does not contain any syntax errors. You can use
+   GitHub's workflow editor to validate the syntax of your workflow file or
+   [GitHub Actions Linter](https://rhysd.github.io/actionlint/).
+
 ## Migration from v1 to v2
 
 If you are migrating from v1 to v2, you need to update the action reference in your workflow file:
@@ -367,3 +428,5 @@ start several workflows on all of our environments.
 [Certora Run Application]: https://github.com/apps/certora-run
 [Certora Action Test]: https://github.com/Certora/certora-run-action-test
 [GitHub OIDC]: https://docs.github.com/en/actions/concepts/security/about-security-hardening-with-openid-connect#adding-permissions-settings
+[GitHub Actions Environment]: https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/deploy-to-environment
+[Pull Request Target Security]: https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
