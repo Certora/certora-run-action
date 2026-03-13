@@ -257,7 +257,7 @@ runs:
           TARGET_URL="$TARGET_URL?text=$SHORT_COMMIT_SHA&allUsers=true&groupIds=$GROUP_ID"
         else
           # Public repository
-          TARGET_URL="$TARGET_URL/v1/github-app/$GROUP_ID"
+          TARGET_URL="$TARGET_URL/v1/github-app/$GROUP_ID/jobs"
         fi
         echo "TARGET_URL=$TARGET_URL" >> "$GITHUB_ENV"
         echo "target_url=$TARGET_URL" >> "$GITHUB_OUTPUT"
