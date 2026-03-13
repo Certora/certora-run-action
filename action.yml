@@ -252,12 +252,12 @@ runs:
         TARGET_URL="https://$CERTORA_SUBDOMAIN.certora.com"
 
         # Set TARGET_URL path depending on repository visibility
-        if [[ "${{ github.event.repository.public }}" == "true" ]]; then
-          # Public repository
-          TARGET_URL="$TARGET_URL/v1/github-app/$GROUP_ID"
-        else
+        if [[ "${{ github.event.repository.private }}" == "true" ]]; then
           # Private repository
           TARGET_URL="$TARGET_URL?text=$SHORT_COMMIT_SHA&allUsers=true&groupIds=$GROUP_ID"
+        else
+          # Public repository
+          TARGET_URL="$TARGET_URL/v1/github-app/$GROUP_ID"
         fi
         echo "TARGET_URL=$TARGET_URL" >> "$GITHUB_ENV"
         echo "target_url=$TARGET_URL" >> "$GITHUB_OUTPUT"
