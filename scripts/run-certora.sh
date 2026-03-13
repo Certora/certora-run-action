@@ -49,6 +49,10 @@ fi
 echo "Using cli entrypoint: $CLI_ENTRYPOINT"
 uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
+if [ "$DEBUG_LEVEL" -gt 2 ]; then
+  find . -path './.git' -prune -o -exec stat -c'%U %G %a %n' {} \;
+fi
+
 current_dir="$(pwd)"
 
 # If CERTORA_PRE_CONFIGURATION is set, run it before all other configurations in the root
@@ -101,6 +105,10 @@ for conf_line in "${confs[@]}"; do
   conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
   run_dir="/tmp/${conf_hash}"
 
+  if [ "$DEBUG_LEVEL" -gt 2 ]; then
+    find "$run_dir" -path './.git' -prune -o -exec stat -c'%U %G %a %n' {} \;
+  fi
+
   # If we're using github.working-directory we have changed the run directory relative
   # to the workspace
   if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
@@ -122,10 +130,6 @@ for conf_line in "${confs[@]}"; do
   fi
 
   cd "$run_dir" || continue
-
-  if [ "$DEBUG_LEVEL" -gt 2 ]; then
-    find . -path './.git' -prune -o -exec stat -c'%U %G %a %n' {} \;
-  fi
 
   uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" "${conf_parts[@]}" \
     --msg "${MSG_CONF} ${MESSAGE_SUFFIX}" \
