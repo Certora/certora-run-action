@@ -422,7 +422,7 @@ runs:
 
     - name: Add report comment
       if: ${{ (failure() || inputs.comment-fail-only == 'false') && (steps.certora-run.outputs.total_jobs > 0 || steps.certora-run.outputs.failed_jobs > 0) }}
-      uses: mshick/add-pr-comment@v2
+      uses: mshick/add-pr-comment@v3
       with:
         message-id: ${{ inputs.replace-comments == 'true' && steps.setup-env.outputs.certora_configurations_hash || steps.setup-env.outputs.group_id }}
         message-path: ${{ steps.setup-env.outputs.report_file }}
