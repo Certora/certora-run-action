@@ -81,22 +81,23 @@ for version in $VERSIONS; do
     verify_sha256 "$version" "$BIN_PATH"
   fi
 
-  # create two symlinks for the binary, solc$version and solc-$version if they don't exist
-  if [ ! -e "/opt/solc-bin/solc$version" ]; then
-    ln -s "$BIN_PATH" "/opt/solc-bin/solc$version"
-    echo "Created symlink: solc$version -> $BIN_PATH"
+  # Recreate aliases so they always point at the just-verified $BIN_PATH.
+  # `-fn` avoids dereferencing an existing symlink that a restored cache may
+  # have pointed elsewhere.
+  if [ "$BIN_PATH" != "/opt/solc-bin/solc$version" ]; then
+    ln -sfn "$BIN_PATH" "/opt/solc-bin/solc$version"
+    echo "Linked: solc$version -> $BIN_PATH"
   fi
-  if [ ! -e "/opt/solc-bin/solc-$version" ]; then
-    ln -s "$BIN_PATH" "/opt/solc-bin/solc-$version"
-    echo "Created symlink: solc-$version -> $BIN_PATH"
+  if [ "$BIN_PATH" != "/opt/solc-bin/solc-$version" ]; then
+    ln -sfn "$BIN_PATH" "/opt/solc-bin/solc-$version"
+    echo "Linked: solc-$version -> $BIN_PATH"
   fi
 
   # Create a symlink for the first version if the binary name isn't already 'solc'
   if [ "$FIRST_VERSION" = true ] && [ "$BIN_PATH" != "/opt/solc-bin/solc" ]; then
-    rm -f /opt/solc-bin/solc # Remove existing symlink if it exists
-    ln -s "$BIN_PATH" /opt/solc-bin/solc
-    echo "Created symlink: solc -> solc$use_version"
-    solc --version
+    ln -sfn "$BIN_PATH" /opt/solc-bin/solc
+    echo "Linked: solc -> solc$use_version"
+    /opt/solc-bin/solc --version
     FIRST_VERSION=false
   fi
 done
