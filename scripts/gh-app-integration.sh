@@ -21,6 +21,7 @@ required_vars=(
   CERTORA_JOB_NAME
   CERTORA_GH_REVIEW
   CERTORA_GH_REVIEW_JOBS
+  CERTORA_AUTO_RERUN_TIMEOUTS
 )
 
 missing_args=false
@@ -63,7 +64,8 @@ PAYLOAD=$(jq -n \
   --arg job_name "$CERTORA_JOB_NAME" \
   --arg gh_review "$CERTORA_GH_REVIEW" \
   --arg gh_review_jobs "$CERTORA_GH_REVIEW_JOBS" \
-  '{group_id: $group_id, commit: $commit, action_ref: $action_ref, config_hash: $config_hash, replace_comments: $replace_comments, pr_number: $pr_number, job_name: $job_name, gh_review: $gh_review, gh_review_jobs: $gh_review_jobs}')
+  --argjson auto_rerun_timeouts "$CERTORA_AUTO_RERUN_TIMEOUTS" \
+  '{group_id: $group_id, commit: $commit, action_ref: $action_ref, config_hash: $config_hash, replace_comments: $replace_comments, pr_number: $pr_number, job_name: $job_name, gh_review: $gh_review, gh_review_jobs: $gh_review_jobs, auto_rerun_timeouts: $auto_rerun_timeouts}')
 
 # Make API request to verify GitHub App integration
 curl -sSL --proto '=https' --tlsv1.2 --retry 10 --max-time 60 --retry-connrefused --fail-with-body -X POST "https://$CERTORA_API_SUBDOMAIN.certora.com/v1/github-app/verify" \

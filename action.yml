@@ -161,6 +161,14 @@ inputs:
     description: |-
       Which jobs to include in the GitHub review comment. Options are `all`, `failed`.
       Default is `all`.
+  auto-rerun-timeouts:
+    required: false
+    default: "false"
+    description: |-
+      Opt in to automatically re-run jobs that time out, using a per-ecosystem
+      portfolio of variant prover configurations. The PR check stays pending
+      while reruns are in flight; if any rerun succeeds, sibling reruns are
+      cancelled and the group is marked successful. Default is `false`.
 
 runs:
   using: "composite"
@@ -388,6 +396,7 @@ runs:
         CERTORA_REPLACE_COMMENTS: "${{ inputs.replace-comments }}"
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
+        CERTORA_AUTO_RERUN_TIMEOUTS: "${{ inputs.auto-rerun-timeouts }}"
 
     - name: Add GH Status
       if: ${{ steps.certora-run.outputs.total_jobs > 0}}
