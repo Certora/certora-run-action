@@ -70,13 +70,13 @@ solana_build_sig() {
   # If there is no "features" key, this gives the empty string 
   local feats
   feats="$(
-    grep -vE '^[[:space:]]*//' "$conf_file" 2>/dev/null \ 
-    | tr '\n' ' ' \
-    | grep -oE '"features"[[:space:]]*:[[:space:]]*\[[^]]*\]' \
-    | grep -oE '"[^"]*"' \
-    | grep -vxF '"features"' \
-    | sort -u \
-    | tr '\n' ','
+    grep -vE '^[[:space:]]*//' "$conf_file" 2>/dev/null |
+    tr '\n' ' ' |
+    grep -oE '"features"[[:space:]]*:[[:space:]]*\[[^]]*\]' |
+    grep -oE '"[^"]*"' |
+    grep -vxF '"features"' |
+    sort -u |
+    tr '\n' ','
   )"
   echo -n "$feats" | md5sum | awk '{print $1}'
 }
