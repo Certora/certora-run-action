@@ -51,13 +51,71 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# Build signature for a Solana conf.
+#
+# Solana compilation is expensive but depends only on the program source 
+# (shared) and the Cargo features selected by the conf's `features` property. 
+# So we group confs by their feature set: confs that produce the same binary
+# share a signature.
+solana_build_sig() {
+  local conf_file="$1"
+  # extract the features list, line-by-line:
+  # 1. drop full line comments
+  # 2. flatten newlines as whitespaces
+  # 3. find all "features" properties
+  # 4. find all double-quoted entries (i.e. the feature flags + "feature" itself)
+  # 5. drop "features" from the list (the key)
+  # 6. sort and dedup
+  # 7. join into comma-separated list
+  # If there is no "features" key, this gives the empty string 
+  local feats
+  feats="$(
+    grep -vE '^[[:space:]]*//' "$conf_file" 2>/dev/null \ 
+    | tr '\n' ' ' \
+    | grep -oE '"features"[[:space:]]*:[[:space:]]*\[[^]]*\]' \
+    | grep -oE '"[^"]*"' \
+    | grep -vxF '"features"' \
+    | sort -u \
+    | tr '\n' ','
+  )"
+  echo -n "$feats" | md5sum | awk '{print $1}'
+}
+
+# Pick the working directory for a configuration.
+#
+# Solana confs that compile the same binary (same feature set) share a single
+# working directory, so the program is compiled once and Cargo's `target/` is
+# reused. Confs with different features must NOT share a directory: they write
+# the same `target/.../<program>.so` path with different content and would
+# otherwise overwrite each other (a job could even submit the wrong binary).
+# Other ecosystems keep an isolated directory per conf, since different confs
+# may modify files or pass conf-specific build arguments.
+get_run_dir() {
+  local conf_line="$1"
+  if [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
+    local conf_parts conf_file
+    eval "conf_parts=($conf_line)"
+    conf_file="${conf_parts[0]}"
+    printf '/tmp/certora-shared-%s-%s' "$GROUP_ID" "$(solana_build_sig "$conf_file")"
+  else
+    printf '/tmp/%s' "$(echo -n "$conf_line" | md5sum | awk '{print $1}')"
+  fi
+}
+
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
+prepared_dirs=""
 for conf_line in "${confs[@]}"; do
-  # Create a temporal directory for isolated executions
-  # Use an MD5 hash of the configuration file as the directory name
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
+  run_dir="$(get_run_dir "$conf_line")"
+
+  # Only copy into each directory once (Solana confs with the same features
+  # resolve to the same directory). run_dir is a /tmp path with no ':' so a
+  # colon-delimited set is safe here.
+  case ":$prepared_dirs:" in
+    *":$run_dir:"*) continue ;;
+  esac
+  prepared_dirs="$prepared_dirs:$run_dir"
+
   mkdir -p "$run_dir"
 
   if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
@@ -89,8 +147,7 @@ for conf_line in "${confs[@]}"; do
   fi
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
+  run_dir="$(get_run_dir "$conf_line")"
 
   # If we're using github.working-directory we have changed the run directory relative
   # to the workspace
