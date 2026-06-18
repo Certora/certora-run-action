@@ -53,8 +53,8 @@ current_dir="$(pwd)"
 
 # Build signature for a Solana conf.
 #
-# Solana compilation is expensive but depends only on the program source 
-# (shared) and the Cargo features selected by the conf's `features` property. 
+# Solana compilation is expensive but depends only on the program source
+# (shared) and the Cargo features selected by the conf's `features` property.
 # So we group confs by their feature set: confs that produce the same binary
 # share a signature.
 solana_build_sig() {
@@ -62,19 +62,19 @@ solana_build_sig() {
   # extract the features list, line-by-line:
   # 1. drop full line comments
   # 2. flatten newlines as whitespaces
-  # 3. find all "features" properties
-  # 4. find all double-quoted entries (i.e. the feature flags + "feature" itself)
-  # 5. drop "features" from the list (the key)
+  # 3. find all "cargo_features" properties
+  # 4. find all double-quoted entries (i.e. the feature flags + "cargo_features" itself)
+  # 5. drop "cargo_features" from the list (the key)
   # 6. sort and dedup
   # 7. join into comma-separated list
-  # If there is no "features" key, this gives the empty string 
+  # If there is no "features" key, this gives the empty string
   local feats
   feats="$(
     grep -vE '^[[:space:]]*//' "$conf_file" 2>/dev/null |
     tr '\n' ' ' |
-    grep -oE '"features"[[:space:]]*:[[:space:]]*\[[^]]*\]' |
+    grep -oE '"cargo_features"[[:space:]]*:[[:space:]]*\[[^]]*\]' |
     grep -oE '"[^"]*"' |
-    grep -vxF '"features"' |
+    grep -vxF '"cargo_features"' |
     sort -u |
     tr '\n' ','
   )"
