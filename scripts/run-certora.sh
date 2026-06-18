@@ -55,7 +55,7 @@ current_dir="$(pwd)"
 # Build signature for a Solana conf.
 #
 # Solana compilation is expensive but depends only on the program source
-# (shared) and the Cargo features selected by the conf's `features` property.
+# (shared) and the Cargo features selected by the conf's `cargo_features` property.
 # So we group confs by their feature set: confs that produce the same binary
 # share a signature.
 solana_build_sig() {
@@ -68,7 +68,7 @@ solana_build_sig() {
   # 5. drop "cargo_features" from the list (the key)
   # 6. sort and dedup
   # 7. join into comma-separated list
-  # If there is no "features" key, this gives the empty string
+  # If there is no "cargo_features" key, this gives the empty string
   local feats
   feats="$(
     grep -vE '^[[:space:]]*//' "$conf_file" 2>/dev/null |
@@ -135,9 +135,9 @@ prepared_dirs=""
 for conf_line in "${confs[@]}"; do
   run_dir="$(get_run_dir "$conf_line")"
 
-  # Only copy into each directory once (Solana confs with the same features
-  # resolve to the same directory). run_dir is a /tmp path with no ':' so a
-  # colon-delimited set is safe here.
+  # Only copy into each directory once (all Solana confs resolve to the same
+  # directory). run_dir is a /tmp path with no ':' so a colon-delimited set is
+  # safe here.
   case ":$prepared_dirs:" in
     *":$run_dir:"*) continue ;;
   esac
