@@ -12,6 +12,7 @@ jobs=0
 pids=()
 configs=()
 logs=()
+rets=()
 
 
 # Read configurations from file specified by $CERTORA_CONFIGURATIONS_FILE
@@ -83,23 +84,49 @@ solana_build_sig() {
 
 # Pick the working directory for a configuration.
 #
-# Solana confs that compile the same binary (same feature set) share a single
-# working directory, so the program is compiled once and Cargo's `target/` is
-# reused. Confs with different features must NOT share a directory: they write
-# the same `target/.../<program>.so` path with different content and would
-# otherwise overwrite each other (a job could even submit the wrong binary).
-# Other ecosystems keep an isolated directory per conf, since different confs
-# may modify files or pass conf-specific build arguments.
+# All Solana confs share one working directory, so the dependencies are compiled
+# once and Cargo's `target/` (which caches artifacts per feature set) is reused
+# across every feature set. Different feature sets must not build at the same
+# time, since they all write the same `target/.../<program>.so`; the run loop
+# serializes feature sets to avoid that race. Other ecosystems keep an isolated
+# directory per conf, since different confs may modify files or pass
+# conf-specific build arguments.
 get_run_dir() {
   local conf_line="$1"
   if [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
-    local conf_parts conf_file
-    eval "conf_parts=($conf_line)"
-    conf_file="${conf_parts[0]}"
-    printf '/tmp/certora-shared-%s-%s' "$GROUP_ID" "$(solana_build_sig "$conf_file")"
+    printf '/tmp/certora-shared-%s' "$GROUP_ID"
   else
     printf '/tmp/%s' "$(echo -n "$conf_line" | md5sum | awk '{print $1}')"
   fi
+}
+
+# For Solana, order confs so those sharing a feature set are adjacent. The run
+# loop then builds one feature-set batch to completion before the next. Confs in
+# a batch (identical cargo_features) build the same binary, so they are safe to
+# run in parallel; different batches are not, as they share one Cargo target.
+if [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
+  ordered_confs=()
+  while IFS= read -r ordered_line; do
+    ordered_confs+=("${ordered_line#*$'\t'}")
+  done < <(
+    for conf_line in "${confs[@]}"; do
+      eval "sig_parts=($conf_line)"
+      printf '%s\t%s\n' "$(solana_build_sig "${sig_parts[0]}")" "$conf_line"
+    done | sort
+  )
+  confs=("${ordered_confs[@]}")
+fi
+
+# Wait for every launched background job not yet waited on, recording each exit
+# code in rets[] (indexed like pids[]). Used both as a barrier between Solana
+# feature-set batches and to collect results for the report.
+drain_pids() {
+  local k r
+  for (( k=${#rets[@]}; k<${#pids[@]}; k++ )); do
+    r=0
+    wait "${pids[k]}" || r=$?
+    rets[k]=$r
+  done
 }
 
 # Create all folders and copy/link all files before any certoraRun executions
@@ -127,6 +154,7 @@ for conf_line in "${confs[@]}"; do
   fi
 done
 
+prev_sig=""
 for conf_line in "${confs[@]}"; do
 
   short_conf_line="${conf_line#"$common_prefix"}"
@@ -139,6 +167,16 @@ for conf_line in "${confs[@]}"; do
   conf_parts=()
   eval "conf_parts=($conf_line)"
   conf_file="${conf_parts[0]}"
+
+  # Drain the previous Solana feature-set batch before building a different one
+  # (all Solana confs share one Cargo target / one program.so output).
+  if [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
+    cur_sig="$(solana_build_sig "$conf_file")"
+    if [[ -n "$prev_sig" && "$cur_sig" != "$prev_sig" ]]; then
+      drain_pids
+    fi
+    prev_sig="$cur_sig"
+  fi
 
   if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
     ACTION="Compiling"
@@ -199,11 +237,11 @@ cat >"$CERTORA_REPORT_FILE" <<EOF
 |--------|--------|------|----------|
 EOF
 
-# Wait for all jobs to finish and mark if any failed
+# Drain the final batch, then mark any failed jobs in the report
+drain_pids
 failed_jobs=0
 for i in "${!pids[@]}"; do
-  ret=0
-  wait "${pids[i]}" || ret=$?
+  ret=${rets[i]}
   conf="${configs[i]}"
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
