@@ -127,6 +127,11 @@ drain_pids() {
     wait "${pids[k]}" || r=$?
     rets[k]=$r
   done
+  # The CLI leaves a new .certora_internal build dir per run and never cleans it.
+  # Drop the finished batch's so they don't accumulate and fill the disk.
+  if [[ -n "${solana_run_dir:-}" ]]; then
+    rm -rf "$solana_run_dir/.certora_internal" 2>/dev/null || true
+  fi
 }
 
 # Create all folders and copy/link all files before any certoraRun executions
@@ -153,6 +158,16 @@ for conf_line in "${confs[@]}"; do
     cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
   fi
 done
+
+# Where the Solana prover runs (one shared dir for all confs); used to clear the
+# accumulating .certora_internal build dirs between batches.
+solana_run_dir=""
+if [[ "$CERTORA_ECOSYSTEM" == "solana" ]]; then
+  solana_run_dir="/tmp/certora-shared-$GROUP_ID"
+  if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
+    solana_run_dir="$solana_run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+  fi
+fi
 
 prev_sig=""
 for conf_line in "${confs[@]}"; do
