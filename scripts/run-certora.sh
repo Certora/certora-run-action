@@ -6,7 +6,7 @@ fi
 
 # When true, run all configurations directly in the current workspace
 # instead of creating and copying the workspace to an isolated temp dir per conf.
-USE_WORKSPACE_DIR=false
+USE_WORKSPACE_DIR=true
 
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
