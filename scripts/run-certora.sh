@@ -8,12 +8,16 @@ fi
 # instead of creating and copying the workspace to an isolated temp dir per conf.
 USE_WORKSPACE_DIR=true
 
+# When true, run configurations one at a time instead of concurrently.
+RUN_SERIALLY=true
+
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
 jobs=0
 
 pids=()
+rets=()
 configs=()
 logs=()
 
@@ -135,8 +139,16 @@ for conf_line in "${confs[@]}"; do
     --group_id "$GROUP_ID" \
     --wait_for_results none \
     >"$LOG_FILE" 2>&1 &
+  pid=$!
 
-  pids+=($!)
+  if [[ "$RUN_SERIALLY" == "true" ]]; then
+    # Wait for this job before launching the next.
+    ret=0
+    wait "$pid" || ret=$?
+    rets+=("$ret")
+  else
+    pids+=("$pid")
+  fi
   configs+=("$conf_line")
 
   ((jobs++)) || true
@@ -155,9 +167,13 @@ EOF
 
 # Wait for all jobs to finish and mark if any failed
 failed_jobs=0
-for i in "${!pids[@]}"; do
-  ret=0
-  wait "${pids[i]}" || ret=$?
+for i in "${!configs[@]}"; do
+  if [[ "$RUN_SERIALLY" == "true" ]]; then
+    ret="${rets[i]}"
+  else
+    ret=0
+    wait "${pids[i]}" || ret=$?
+  fi
   conf="${configs[i]}"
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
