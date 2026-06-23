@@ -141,7 +141,7 @@ inputs:
       for more details on available options.
   use-hard-links:
     required: false
-    default: "false"
+    default: "true"
     description: |-
       Whether to use hard links when copying files. Default is `true`.
   use-workspace-dir:
