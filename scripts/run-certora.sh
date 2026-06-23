@@ -4,17 +4,6 @@ if [ "$DEBUG_LEVEL" -gt 0 ]; then
   set -x
 fi
 
-# When true, run all configurations directly in the current workspace
-# instead of creating and copying the workspace to an isolated temp dir per conf.
-USE_WORKSPACE_DIR=true
-
-# When true, run configurations one at a time instead of concurrently.
-RUN_SERIALLY=true
-
-# When true, delete a run's .certora_internal build directory once its job has
-# been submitted, so these directories don't accumulate and fill the disk.
-CLEANUP_INTERNAL_DIRS=true
-
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
@@ -65,7 +54,7 @@ current_dir="$(pwd)"
 
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
-if [[ "$USE_WORKSPACE_DIR" != "true" ]]; then
+if [[ "$CERTORA_USE_WORKSPACE_DIR" != "true" ]]; then
   for conf_line in "${confs[@]}"; do
     # Create a temporal directory for isolated executions
     # Use an MD5 hash of the configuration file as the directory name
@@ -104,7 +93,7 @@ for conf_line in "${confs[@]}"; do
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
 
-  if [[ "$USE_WORKSPACE_DIR" == "true" ]]; then
+  if [[ "$CERTORA_USE_WORKSPACE_DIR" == "true" ]]; then
     run_dir="$current_dir"
   else
     conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
@@ -145,13 +134,13 @@ for conf_line in "${confs[@]}"; do
     >"$LOG_FILE" 2>&1 &
   pid=$!
 
-  if [[ "$RUN_SERIALLY" == "true" ]]; then
+  if [[ "$CERTORA_RUN_SERIALLY" == "true" ]]; then
     # Wait for this job before launching the next.
     ret=0
     wait "$pid" || ret=$?
     rets+=("$ret")
     # Safe to delete now: nothing else is running and the job is already uploaded.
-    if [[ "$CLEANUP_INTERNAL_DIRS" == "true" ]]; then
+    if [[ "$CERTORA_CLEANUP_INTERNAL_DIRS" == "true" ]]; then
       rm -rf "$run_dir/.certora_internal"
     fi
   else
@@ -176,7 +165,7 @@ EOF
 # Wait for all jobs to finish and mark if any failed
 failed_jobs=0
 for i in "${!configs[@]}"; do
-  if [[ "$RUN_SERIALLY" == "true" ]]; then
+  if [[ "$CERTORA_RUN_SERIALLY" == "true" ]]; then
     ret="${rets[i]}"
   else
     ret=0
@@ -210,7 +199,7 @@ done
 # In concurrent mode we cannot delete mid-run, so sweep the workspace build
 # directory now that every job has been submitted.
 # Frees disk for later certora-run steps that share the same disk.
-if [[ "$CLEANUP_INTERNAL_DIRS" == "true" && "$RUN_SERIALLY" != "true" ]]; then
+if [[ "$CERTORA_CLEANUP_INTERNAL_DIRS" == "true" && "$CERTORA_RUN_SERIALLY" != "true" ]]; then
   rm -rf "$current_dir/.certora_internal"
 fi
 

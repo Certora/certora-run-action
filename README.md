@@ -188,6 +188,9 @@ General inputs for:
 - `certora-key` - API key for Certora Prover.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 - `use-hard-links` - Whether to use hard links when copying files (optional). If you expect to modify the files in the run directory during `certoraRun` execution, you should set this to `false`.
+- `use-workspace-dir` - Run all configurations directly in the working directory instead of copying it to an isolated temporary directory per configuration (optional). Default is `false`.
+- `run-serially` - Run configurations one at a time instead of concurrently (optional). Default is `false`.
+- `cleanup-internal-dirs` - Delete each run's `.certora_internal` build directory after its job has been submitted, so they do not accumulate and fill the disk (optional). Default is `false`.
 - `debug-level` - Debug level for the action (optional). Default is `0`. Possible values are `0`, `1`, `2`, and `3`. Higher values will produce more debug output.
 - `gh-review` - When to add a review comment to the PR. Options are `always`, `failure`, and `never`. Default is `always`.
 - `gh-review-jobs` - Which jobs to include in the GitHub review comment. Options are `all`, `failed`. Default is `all`.

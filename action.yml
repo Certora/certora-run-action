@@ -141,9 +141,26 @@ inputs:
       for more details on available options.
   use-hard-links:
     required: false
-    default: "true"
+    default: "false"
     description: |-
       Whether to use hard links when copying files. Default is `true`.
+  use-workspace-dir:
+    required: false
+    default: "false"
+    description: |-
+      Whether to run all configurations directly in the working directory instead of
+      copying it to an isolated temporary directory per configuration. Default is `false`.
+  run-serially:
+    required: false
+    default: "false"
+    description: |-
+      Whether to run configurations one at a time instead of concurrently. Default is `false`.
+  cleanup-internal-dirs:
+    required: false
+    default: "false"
+    description: |-
+      Whether to delete each run's `.certora_internal` build directory after its job has
+      been submitted, so they do not accumulate and fill the disk. Default is `false`.
   vyper-version:
     required: false
     description: |-
@@ -385,6 +402,9 @@ runs:
         CERTORA_ECOSYSTEM: "${{ inputs.ecosystem }}"
         DEBUG_LEVEL: "${{ inputs.debug-level }}"
         CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
+        CERTORA_USE_WORKSPACE_DIR: "${{ inputs.use-workspace-dir }}"
+        CERTORA_RUN_SERIALLY: "${{ inputs.run-serially }}"
+        CERTORA_CLEANUP_INTERNAL_DIRS: "${{ inputs.cleanup-internal-dirs }}"
         CERTORA_REPLACE_COMMENTS: "${{ inputs.replace-comments }}"
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
