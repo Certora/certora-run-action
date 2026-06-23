@@ -4,6 +4,10 @@ if [ "$DEBUG_LEVEL" -gt 0 ]; then
   set -x
 fi
 
+# When true, run all configurations directly in the current workspace
+# instead of creating and copying the workspace to an isolated temp dir per conf.
+USE_WORKSPACE_DIR=false
+
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
@@ -53,21 +57,23 @@ current_dir="$(pwd)"
 
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
-for conf_line in "${confs[@]}"; do
-  # Create a temporal directory for isolated executions
-  # Use an MD5 hash of the configuration file as the directory name
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
-  mkdir -p "$run_dir"
+if [[ "$USE_WORKSPACE_DIR" != "true" ]]; then
+  for conf_line in "${confs[@]}"; do
+    # Create a temporal directory for isolated executions
+    # Use an MD5 hash of the configuration file as the directory name
+    conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
+    run_dir="/tmp/${conf_hash}"
+    mkdir -p "$run_dir"
 
-  if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
-    echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
-    cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-  else
-    echo "Creating folder and copying files for: $conf_line ($run_dir)"
-    cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-  fi
-done
+    if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
+      echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
+      cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+    else
+      echo "Creating folder and copying files for: $conf_line ($run_dir)"
+      cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+    fi
+  done
+fi
 
 for conf_line in "${confs[@]}"; do
 
@@ -89,13 +95,18 @@ for conf_line in "${confs[@]}"; do
   fi
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
 
-  # If we're using github.working-directory we have changed the run directory relative
-  # to the workspace
-  if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
-    run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+  if [[ "$USE_WORKSPACE_DIR" == "true" ]]; then
+    run_dir="$current_dir"
+  else
+    conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
+    run_dir="/tmp/${conf_hash}"
+
+    # If we're using github.working-directory we have changed the run directory relative
+    # to the workspace
+    if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
+      run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+    fi
   fi
 
   # Create log files
