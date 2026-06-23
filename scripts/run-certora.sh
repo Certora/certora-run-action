@@ -11,6 +11,10 @@ USE_WORKSPACE_DIR=true
 # When true, run configurations one at a time instead of concurrently.
 RUN_SERIALLY=true
 
+# When true, delete a run's .certora_internal build directory once its job has
+# been submitted, so these directories don't accumulate and fill the disk.
+CLEANUP_INTERNAL_DIRS=true
+
 MAX_MSG_LEN=254
 SUFFIX_LEN=${#MESSAGE_SUFFIX}
 REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
@@ -146,6 +150,10 @@ for conf_line in "${confs[@]}"; do
     ret=0
     wait "$pid" || ret=$?
     rets+=("$ret")
+    # Safe to delete now: nothing else is running and the job is already uploaded.
+    if [[ "$CLEANUP_INTERNAL_DIRS" == "true" ]]; then
+      rm -rf "$run_dir/.certora_internal"
+    fi
   else
     pids+=("$pid")
   fi
@@ -198,6 +206,13 @@ for i in "${!configs[@]}"; do
 
   fi
 done
+
+# In concurrent mode we cannot delete mid-run, so sweep the workspace build
+# directory now that every job has been submitted.
+# Frees disk for later certora-run steps that share the same disk.
+if [[ "$CLEANUP_INTERNAL_DIRS" == "true" && "$RUN_SERIALLY" != "true" ]]; then
+  rm -rf "$current_dir/.certora_internal"
+fi
 
 # Add jobs to output
 echo "total_jobs=$jobs" >>"$GITHUB_OUTPUT"
