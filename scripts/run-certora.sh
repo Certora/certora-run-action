@@ -52,6 +52,12 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# Sharing one working directory across concurrent runs lets them race on shared
+# build artifacts (e.g. a common cargo target/ directory).
+if [[ "$CERTORA_USE_WORKSPACE_DIR" == "true" && "$CERTORA_RUN_SERIALLY" != "true" ]]; then
+  echo "::warning title=Possible race conditions::use-workspace-dir is true but run-serially is false: configurations run concurrently in a shared working directory and may race on shared build artifacts. Consider setting run-serially to true."
+fi
+
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
 if [[ "$CERTORA_USE_WORKSPACE_DIR" != "true" ]]; then
