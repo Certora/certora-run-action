@@ -155,12 +155,6 @@ inputs:
     default: "false"
     description: |-
       Whether to run configurations one at a time instead of concurrently. Default is `false`.
-  cleanup-internal-dirs:
-    required: false
-    default: "false"
-    description: |-
-      Whether to delete each run's `.certora_internal` build directory after its job has
-      been submitted, so they do not accumulate and fill the disk. Default is `false`.
   vyper-version:
     required: false
     description: |-

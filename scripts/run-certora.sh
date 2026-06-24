@@ -145,10 +145,6 @@ for conf_line in "${confs[@]}"; do
     ret=0
     wait "$pid" || ret=$?
     rets+=("$ret")
-    # Safe to delete now: nothing else is running and the job is already uploaded.
-    if [[ "$CERTORA_CLEANUP_INTERNAL_DIRS" == "true" ]]; then
-      rm -rf "$run_dir/.certora_internal"
-    fi
   else
     pids+=("$pid")
   fi
@@ -201,13 +197,6 @@ for i in "${!configs[@]}"; do
 
   fi
 done
-
-# In concurrent mode we cannot delete mid-run, so sweep the workspace build
-# directory now that every job has been submitted.
-# Frees disk for later certora-run steps that share the same disk.
-if [[ "$CERTORA_CLEANUP_INTERNAL_DIRS" == "true" && "$CERTORA_RUN_SERIALLY" != "true" ]]; then
-  rm -rf "$current_dir/.certora_internal"
-fi
 
 # Add jobs to output
 echo "total_jobs=$jobs" >>"$GITHUB_OUTPUT"
