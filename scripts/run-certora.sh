@@ -79,7 +79,16 @@ for conf_line in "${confs[@]}"; do
   fi
 
   conf_parts=()
-  eval "conf_parts=($conf_line)"
+  conf_tmp="$(mktemp)"  # TMP file so we can check exit status of xargs
+  # Split into words honoring quotes
+  if ! printf '%s' "$conf_line" | xargs -r printf '%s\0' > "$conf_tmp"; then
+    # xargs exits non-zero on unbalanced quotes
+    echo "::error title=Invalid Configuration::Could not parse configuration line (check for unbalanced quotes): $conf_line"
+    rm -f "$conf_tmp"
+    exit 1
+  fi
+  mapfile -t -d '' conf_parts < "$conf_tmp"  # read NUL-delimited words into the array
+  rm -f "$conf_tmp"
   conf_file="${conf_parts[0]}"
 
   if [[ "$CERTORA_COMPILATION_STEPS_ONLY" == 'true' ]]; then
