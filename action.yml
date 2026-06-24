@@ -398,7 +398,6 @@ runs:
         CERTORA_USE_HARD_LINKS: "${{ inputs.use-hard-links }}"
         CERTORA_USE_WORKSPACE_DIR: "${{ inputs.use-workspace-dir }}"
         CERTORA_RUN_SERIALLY: "${{ inputs.run-serially }}"
-        CERTORA_CLEANUP_INTERNAL_DIRS: "${{ inputs.cleanup-internal-dirs }}"
         CERTORA_REPLACE_COMMENTS: "${{ inputs.replace-comments }}"
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
