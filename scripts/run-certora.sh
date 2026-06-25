@@ -10,6 +10,7 @@ REMAINING_LEN=$((MAX_MSG_LEN - SUFFIX_LEN))
 jobs=0
 
 pids=()
+rets=()
 configs=()
 logs=()
 
@@ -51,23 +52,31 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# Sharing one working directory across concurrent runs lets them race on shared
+# build artifacts (e.g. a common cargo target/ directory).
+if [[ "$CERTORA_USE_WORKSPACE_DIR" == "true" && "$CERTORA_RUN_SERIALLY" != "true" ]]; then
+  echo "::warning title=Possible race conditions::use-workspace-dir is true but run-serially is false: configurations run concurrently in a shared working directory and may race on shared build artifacts. Consider setting run-serially to true."
+fi
+
 # Create all folders and copy/link all files before any certoraRun executions
 # in case we need to modify them
-for conf_line in "${confs[@]}"; do
-  # Create a temporal directory for isolated executions
-  # Use an MD5 hash of the configuration file as the directory name
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
-  mkdir -p "$run_dir"
+if [[ "$CERTORA_USE_WORKSPACE_DIR" != "true" ]]; then
+  for conf_line in "${confs[@]}"; do
+    # Create a temporal directory for isolated executions
+    # Use an MD5 hash of the configuration file as the directory name
+    conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
+    run_dir="/tmp/${conf_hash}"
+    mkdir -p "$run_dir"
 
-  if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
-    echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
-    cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-  else
-    echo "Creating folder and copying files for: $conf_line ($run_dir)"
-    cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
-  fi
-done
+    if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
+      echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
+      cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+    else
+      echo "Creating folder and copying files for: $conf_line ($run_dir)"
+      cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+    fi
+  done
+fi
 
 for conf_line in "${confs[@]}"; do
 
@@ -98,13 +107,18 @@ for conf_line in "${confs[@]}"; do
   fi
 
   echo "$ACTION '$conf_line' with message: $MSG_CONF"
-  conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-  run_dir="/tmp/${conf_hash}"
 
-  # If we're using github.working-directory we have changed the run directory relative
-  # to the workspace
-  if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
-    run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+  if [[ "$CERTORA_USE_WORKSPACE_DIR" == "true" ]]; then
+    run_dir="$current_dir"
+  else
+    conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
+    run_dir="/tmp/${conf_hash}"
+
+    # If we're using github.working-directory we have changed the run directory relative
+    # to the workspace
+    if [[ "$current_dir" != "$GITHUB_WORKSPACE" ]]; then
+      run_dir="$run_dir/$(realpath --relative-to="$GITHUB_WORKSPACE" "$current_dir")"
+    fi
   fi
 
   # Create log files
@@ -133,8 +147,16 @@ for conf_line in "${confs[@]}"; do
     --group_id "$GROUP_ID" \
     --wait_for_results none \
     >"$LOG_FILE" 2>&1 &
+  pid=$!
 
-  pids+=($!)
+  if [[ "$CERTORA_RUN_SERIALLY" == "true" ]]; then
+    # Wait for this job before launching the next.
+    ret=0
+    wait "$pid" || ret=$?
+    rets+=("$ret")
+  else
+    pids+=("$pid")
+  fi
   configs+=("$conf_line")
 
   ((jobs++)) || true
@@ -153,9 +175,13 @@ EOF
 
 # Wait for all jobs to finish and mark if any failed
 failed_jobs=0
-for i in "${!pids[@]}"; do
-  ret=0
-  wait "${pids[i]}" || ret=$?
+for i in "${!configs[@]}"; do
+  if [[ "$CERTORA_RUN_SERIALLY" == "true" ]]; then
+    ret="${rets[i]}"
+  else
+    ret=0
+    wait "${pids[i]}" || ret=$?
+  fi
   conf="${configs[i]}"
   if [[ $ret -ne 0 ]]; then
     ((jobs--)) || true
