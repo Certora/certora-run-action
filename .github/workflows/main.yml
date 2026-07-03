@@ -25,7 +25,7 @@ jobs:
   syntax-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -36,7 +36,7 @@ jobs:
   fail_to_start:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Fail to Start
@@ -67,7 +67,7 @@ jobs:
   violated_rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Violated Rules
@@ -87,7 +87,7 @@ jobs:
   violated_rules_hide_review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Violated Rules
@@ -108,7 +108,7 @@ jobs:
   verified_rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Verified Rules
@@ -128,7 +128,7 @@ jobs:
   verified_rules_hide_review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Verified Rules
@@ -149,7 +149,7 @@ jobs:
   auto_timeouter_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
       - run: npm install
       - name: Auto Timeouter Test
@@ -170,7 +170,7 @@ jobs:
   solana-violated-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Solana Violated Rules
         uses: ./
         with:
@@ -186,7 +186,7 @@ jobs:
   sui-verified-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Get Sui CLI
         run: |
           sui_cli_version="testnet-v1.60.0"
@@ -213,7 +213,7 @@ jobs:
   soroban-verified-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: run configs
         uses: ./
         with:
