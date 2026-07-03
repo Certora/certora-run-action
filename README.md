@@ -193,6 +193,7 @@ General inputs for:
 - `debug-level` - Debug level for the action (optional). Default is `0`. Possible values are `0`, `1`, `2`, and `3`. Higher values will produce more debug output.
 - `gh-review` - When to add a review comment to the PR. Options are `always`, `failure`, and `never`. Default is `always`.
 - `gh-review-jobs` - Which jobs to include in the GitHub review comment. Options are `all`, `failed`. Default is `all`.
+- `auto-rerun-timeouts` - Opt in to automatically re-run jobs that time out, using a per-ecosystem portfolio of variant prover configurations. The PR check stays pending while reruns are in flight; if any rerun succeeds, sibling reruns are cancelled and the group is marked successful. Default is `false`.
 
 EVM specific inputs (`ecosystem: evm`):
 

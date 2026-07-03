@@ -146,6 +146,27 @@ jobs:
           gh-review: "failure"
           gh-review-jobs: "failed"
 
+  auto_timeouter_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+      - run: npm install
+      - name: Auto Timeouter Test
+        uses: ./
+        with:
+          configurations: |-
+            tests/evm/conf-verified.conf
+            tests/evm/runERC4626Full.conf
+            tests/evm/runERC4626Full.conf --global_timeout 180
+            tests/evm/runERC4626Full.conf --global_timeout 30
+          solc-versions: 0.7.6 0.8.1 0.8.30
+          job-name: "Auto Timeouter Test"
+          server: "staging"
+          debug-level: 3
+          auto-rerun-timeouts: "true"
+          certora-key: ${{ secrets.CERTORAKEY }}
+
   solana-violated-rules:
     runs-on: ubuntu-latest
     steps:
