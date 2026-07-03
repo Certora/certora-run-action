@@ -23,7 +23,6 @@ required_vars=(
   CERTORA_GH_REVIEW_JOBS
   CERTORA_AUTO_RERUN_TIMEOUTS
   COMMIT_SHA
-  CERTORA_ACTION_REF
 )
 
 missing_args=false
