@@ -374,7 +374,7 @@ runs:
 
     - name: Install rust for solana
       if: ${{ inputs.ecosystem == 'solana' && inputs.rust-setup == 'true' }}
-      uses: Certora/rust-setup-action@e161cd3ac1058b733d94726531a42775d85e4b9c # v1.0.1
+      uses: Certora/rust-setup-action@31bcffb38fc673ba728377e6613cee933d603361 # main @ 2026-07-07 (#1)
       with:
         version: ${{ inputs.rust-version }}
         additional-versions: ${{ inputs.rust-additional-versions }}
