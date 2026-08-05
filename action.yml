@@ -180,6 +180,14 @@ inputs:
       portfolio of variant prover configurations. The PR check stays pending
       while reruns are in flight; if any rerun succeeds, sibling reruns are
       cancelled and the group is marked successful. Default is `false`.
+  job-name-as-message-id:
+    required: false
+    default: "false"
+    description: |-
+      Whether to compute the message ID hash from the job name instead of the
+      normalized configurations list. Default is `false`. If set to `true`,
+      changing the job name creates a new comment thread when `replace-comments`
+      is enabled.
 
 runs:
   using: "composite"
@@ -287,7 +295,11 @@ runs:
         CERTORA_CONFIGURATIONS_FILE="/tmp/certora-logs/REPORT-${GROUP_ID}-configurations"
         sed -r 's/^\s+//; s/\s+$//; /^[[:blank:]]*#/d; s/^#.*//; /^\s*$/d' <<< "$CERTORA_RAW_CONFIGURATIONS" | sort -u > "$CERTORA_CONFIGURATIONS_FILE"
 
-        CERTORA_CONFIGURATIONS_HASH="$(md5sum < "$CERTORA_CONFIGURATIONS_FILE" | awk '{ print $1 }')"
+        if [[ "$CERTORA_JOB_NAME_AS_MESSAGE_ID" == "true" ]]; then
+          CERTORA_CONFIGURATIONS_HASH="$(md5sum <<< "$CERTORA_JOB_NAME" | awk '{ print $1 }')"
+        else
+          CERTORA_CONFIGURATIONS_HASH="$(md5sum < "$CERTORA_CONFIGURATIONS_FILE" | awk '{ print $1 }')"
+        fi
 
         echo "CERTORA_ACTION_REF=$CERTORA_ACTION_REF" >> "$GITHUB_ENV"
         echo "CERTORA_SUBDOMAIN=$CERTORA_SUBDOMAIN" >> "$GITHUB_ENV"
@@ -300,6 +312,8 @@ runs:
       env:
         CERTORA_ACTION_REF: ${{ github.action_ref }}
         CERTORA_RAW_CONFIGURATIONS: "${{ inputs.configurations }}"
+        CERTORA_JOB_NAME_AS_MESSAGE_ID: "${{ inputs.job-name-as-message-id }}"
+        CERTORA_JOB_NAME: "${{ inputs.job-name }}"
 
     - name: Install uv
       uses: astral-sh/setup-uv@d31148d669074a8d0a63714ba94f3201e7020bc3 # v8.3.0
