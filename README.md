@@ -194,6 +194,7 @@ General inputs for:
 - `gh-review` - When to add a review comment to the PR. Options are `always`, `failure`, and `never`. Default is `always`.
 - `gh-review-jobs` - Which jobs to include in the GitHub review comment. Options are `all`, `failed`. Default is `all`.
 - `auto-rerun-timeouts` - Opt in to automatically re-run jobs that time out, using a per-ecosystem portfolio of variant prover configurations. The PR check stays pending while reruns are in flight; if any rerun succeeds, sibling reruns are cancelled and the group is marked successful. Default is `false`.
+- `job-name-as-message-id` - Compute the review comment `message-id` hash from `job-name` instead of the normalized `configurations` list (optional). Default is `false`. This affects comment replacement behavior when `replace-comments` is enabled.
 
 EVM specific inputs (`ecosystem: evm`):
 
