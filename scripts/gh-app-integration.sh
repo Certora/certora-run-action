@@ -50,7 +50,16 @@ if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
   exit 1
 fi
 
-PR_NUMBER="$(jq --raw-output '.pull_request.number' "$GITHUB_EVENT_PATH")"
+# Resolved per-event by action.yml's "Fetch Relevant Commit SHA" step, which knows the
+# payload shape, and handed off under a CERTORA_-prefixed name so it doesn't collide with
+# a consumer's own PR_NUMBER in $GITHUB_ENV. The fallback keeps this script usable
+# standalone; `.issue.number` covers issue_comment, where `.pull_request.number` does not
+# exist.
+if [ -z "${CERTORA_PR_NUMBER:-}" ]; then
+  PR_NUMBER="$(jq --raw-output '.pull_request.number // .issue.number // empty' "$GITHUB_EVENT_PATH")"
+else
+  PR_NUMBER="$CERTORA_PR_NUMBER"
+fi
 
 ERROR_MSG="Please install the Certora GitHub App ($CERT_GH_APP_LINK) and follow the guide from Certora GitHub Action ($CERT_GH_ACTION_LINK)."
 
