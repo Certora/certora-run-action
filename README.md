@@ -368,6 +368,27 @@ In case that the workflow does not start at all:
    GitHub's workflow editor to validate the syntax of your workflow file or
    [GitHub Actions Linter](https://rhysd.github.io/actionlint/).
 
+### Comment-Triggered Runs (`issue_comment`)
+
+Runs triggered by a comment on a pull request are supported. A comment on a plain issue
+(not a pull request) fails with an explicit error, since there is no commit to verify.
+
+`issue_comment` workflows always run against the **default branch** — `github.ref` and
+`github.sha` never point at the PR — so a plain `actions/checkout` checks out the wrong
+tree even though this action correctly resolves and reports on the PR head SHA. Check out
+the PR head explicitly:
+
+```yaml
+- uses: actions/checkout@v7
+  with:
+    ref: refs/pull/${{ github.event.issue.number }}/head
+```
+
+`issue_comment` also runs with the base repository's token and secrets, including for
+comments on fork pull requests. Gate the triggering job on the commenter, for example
+`if: github.event.issue.pull_request && github.event.comment.author_association == 'MEMBER'`
+(see `.github/workflows/ff_merge.yml` in this repo for the same pattern in use).
+
 ## Migration from v1 to v2
 
 If you are migrating from v1 to v2, you need to update the action reference in your workflow file:
