@@ -106,7 +106,12 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
 
   verified_rules:
-    runs-on: ubuntu-latest
+    # ubuntu-26.04 keeps /tmp on a separate filesystem from the workspace, so it checks
+    # that the per-configuration hard links still work.
+    strategy:
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-26.04]
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
