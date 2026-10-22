@@ -106,11 +106,12 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY }}
 
   verified_rules:
-    # ubuntu-26.04 keeps /tmp on a separate filesystem from the workspace, so it checks
-    # that the per-configuration hard links still work.
+    # The runner images differ in where /tmp lives: on ubuntu-26.04 it is a separate
+    # filesystem from the workspace. ubuntu-latest follows whichever image GitHub maps it to.
     strategy:
+      fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-26.04]
+        runner: [ubuntu-latest, ubuntu-24.04, ubuntu-26.04]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
