@@ -52,6 +52,11 @@ uvx --from "$CERT_CLI_PACKAGE" "$CLI_ENTRYPOINT" --version
 
 current_dir="$(pwd)"
 
+# Per-configuration run directories live under RUNNER_TEMP, which the runner keeps
+# next to the workspace. A hard link only works within one filesystem, and on some
+# runner images (for example ubuntu-26.04) /tmp is a separate filesystem.
+run_root="${RUNNER_TEMP}/certora-runs"
+
 # Sharing one working directory across concurrent runs lets them race on shared
 # build artifacts (e.g. a common cargo target/ directory).
 if [[ "$CERTORA_USE_WORKSPACE_DIR" == "true" && "$CERTORA_RUN_SERIALLY" != "true" ]]; then
@@ -65,15 +70,19 @@ if [[ "$CERTORA_USE_WORKSPACE_DIR" != "true" ]]; then
     # Create a temporal directory for isolated executions
     # Use an MD5 hash of the configuration file as the directory name
     conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-    run_dir="/tmp/${conf_hash}"
+    run_dir="${run_root}/${conf_hash}"
     mkdir -p "$run_dir"
 
     if [[ "$CERTORA_USE_HARD_LINKS" == "true" ]]; then
       echo "Creating folder and hardlinks for: $conf_line ($run_dir)"
-      cp -lRP --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+      cp_args=(-lRP)
     else
       echo "Creating folder and copying files for: $conf_line ($run_dir)"
-      cp -R --update=none "$GITHUB_WORKSPACE/." "$run_dir/"
+      cp_args=(-R)
+    fi
+    if ! cp "${cp_args[@]}" --update=none "$GITHUB_WORKSPACE/." "$run_dir/"; then
+      echo "::error title=Workspace Copy Failed::Could not copy $GITHUB_WORKSPACE into $run_dir for: $conf_line"
+      exit 1
     fi
   done
 fi
@@ -112,7 +121,7 @@ for conf_line in "${confs[@]}"; do
     run_dir="$current_dir"
   else
     conf_hash=$(echo -n "$conf_line" | md5sum | awk '{print $1}')
-    run_dir="/tmp/${conf_hash}"
+    run_dir="${run_root}/${conf_hash}"
 
     # If we're using github.working-directory we have changed the run directory relative
     # to the workspace
