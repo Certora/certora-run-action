@@ -298,18 +298,25 @@ runs:
 
         CERTORA_SUBDOMAIN="prover"
         CERTORA_API_SUBDOMAIN="data-api"
+        CERTORA_APP_SUBDOMAIN="app"
         if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
           CERTORA_SUBDOMAIN="vaas-dev"
           CERTORA_API_SUBDOMAIN="data-api-dev"
+          CERTORA_APP_SUBDOMAIN="dev-zeus"
         elif [[ "${{ inputs.server }}" == "staging" || "${{ inputs.server }}" == "vaas-stg" ]]; then
           CERTORA_SUBDOMAIN="vaas-stg"
           CERTORA_API_SUBDOMAIN="data-api-stg"
+          CERTORA_APP_SUBDOMAIN="dev-zeus"
         fi
 
         TARGET_URL="https://$CERTORA_SUBDOMAIN.certora.com"
 
-        # Set TARGET_URL path depending on repository visibility
-        if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+        # A Certora API key has 69 characters. A legacy key has 32 or 40 hex characters.
+        # An API key gets a link to the app job list for this group. A legacy key gets the legacy link.
+        # The pattern is the same as API_KEY_RE in the Certora CLI.
+        if [[ "$CERTORA_KEY_INPUT" =~ ^[A-Za-z0-9_-]{69}$ ]]; then
+          TARGET_URL="https://$CERTORA_APP_SUBDOMAIN.certora.com/orgs/default/jobs?group=$GROUP_ID&scope=everyone&range=all"
+        elif [[ "${{ github.event.repository.private }}" == "true" ]]; then
           # Private repository
           TARGET_URL="$TARGET_URL?text=$SHORT_COMMIT_SHA&allUsers=true&groupIds=$GROUP_ID"
         else
@@ -344,6 +351,7 @@ runs:
         CERTORA_RAW_CONFIGURATIONS: "${{ inputs.configurations }}"
         CERTORA_JOB_NAME_AS_MESSAGE_ID: "${{ inputs.job-name-as-message-id }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
+        CERTORA_KEY_INPUT: "${{ inputs.certora-key }}"
 
     - name: Install uv
       uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
