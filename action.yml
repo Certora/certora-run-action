@@ -195,7 +195,10 @@ inputs:
       Whether to name the commit status after the configurations hash instead of
       the random group ID. If set to `true`, a re-run on the same commit updates
       the same status check instead of adding a new one. The hash follows
-      `job-name-as-message-id`. Default is `false`.
+      `job-name-as-message-id`. Default is `false`. If several calls run on one
+      commit with the same configurations, set a different `job-name` on each
+      call and set `job-name-as-message-id` to `true`. Otherwise the calls share
+      one status check.
 
 runs:
   using: "composite"
@@ -347,18 +350,10 @@ runs:
         echo "CERTORA_CONFIGURATIONS_HASH=$CERTORA_CONFIGURATIONS_HASH" >> "$GITHUB_ENV"
         echo "certora_configurations_file=$CERTORA_CONFIGURATIONS_FILE" >> "$GITHUB_OUTPUT"
         echo "certora_configurations_hash=$CERTORA_CONFIGURATIONS_HASH" >> "$GITHUB_OUTPUT"
-
-        # The backend names its statuses the same way (status_context in cert_data.gh_app).
-        if [[ "$CERTORA_STABLE_STATUS_NAME" == "true" ]]; then
-          echo "status_context=certora-run/$CERTORA_CONFIGURATIONS_HASH" >> "$GITHUB_OUTPUT"
-        else
-          echo "status_context=certora-run/$GROUP_ID" >> "$GITHUB_OUTPUT"
-        fi
       env:
         CERTORA_ACTION_REF: ${{ github.action_ref }}
         CERTORA_RAW_CONFIGURATIONS: "${{ inputs.configurations }}"
         CERTORA_JOB_NAME_AS_MESSAGE_ID: "${{ inputs.job-name-as-message-id }}"
-        CERTORA_STABLE_STATUS_NAME: "${{ inputs.stable-status-name }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
 
     - name: Install uv
@@ -472,6 +467,7 @@ runs:
         CERTORA_AUTO_RERUN_TIMEOUTS: "${{ inputs.auto-rerun-timeouts }}"
         CERTORA_STABLE_STATUS_NAME: "${{ inputs.stable-status-name }}"
 
+    # The backend builds the same status name (status_context in cert_data.gh_app).
     - name: Add GH Status
       if: ${{ steps.certora-run.outputs.total_jobs > 0}}
       shell: bash
@@ -486,7 +482,7 @@ runs:
             "state":"pending",
             "target_url":"${{ steps.setup-env.outputs.target_url }}",
             "description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.",
-            "context":"${{ steps.setup-env.outputs.status_context }}"
+            "context":"certora-run/${{ inputs.stable-status-name == 'true' && steps.setup-env.outputs.certora_configurations_hash || steps.setup-env.outputs.group_id }}"
           }'
 
     - name: Upload Logs
