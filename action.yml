@@ -188,6 +188,17 @@ inputs:
       normalized configurations list. Default is `false`. If set to `true`,
       changing the job name creates a new comment thread when `replace-comments`
       is enabled.
+  stable-status-name:
+    required: false
+    default: "false"
+    description: |-
+      Whether to name the commit status after the configurations hash instead of
+      the random group ID. If set to `true`, a re-run on the same commit updates
+      the same status check instead of adding a new one. The hash follows
+      `job-name-as-message-id`. Default is `false`. If several calls run on one
+      commit with the same configurations, set a different `job-name` on each
+      call and set `job-name-as-message-id` to `true`. Otherwise the calls share
+      one status check.
 
 runs:
   using: "composite"
@@ -454,7 +465,9 @@ runs:
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
         CERTORA_AUTO_RERUN_TIMEOUTS: "${{ inputs.auto-rerun-timeouts }}"
+        CERTORA_STABLE_STATUS_NAME: "${{ inputs.stable-status-name }}"
 
+    # The backend builds the same status name (status_context in cert_data.gh_app).
     - name: Add GH Status
       if: ${{ steps.certora-run.outputs.total_jobs > 0}}
       shell: bash
@@ -469,7 +482,7 @@ runs:
             "state":"pending",
             "target_url":"${{ steps.setup-env.outputs.target_url }}",
             "description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.",
-            "context":"certora-run/${{ steps.setup-env.outputs.group_id }}"
+            "context":"certora-run/${{ inputs.stable-status-name == 'true' && steps.setup-env.outputs.certora_configurations_hash || steps.setup-env.outputs.group_id }}"
           }'
 
     - name: Upload Logs
