@@ -302,11 +302,11 @@ runs:
         if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
           CERTORA_SUBDOMAIN="vaas-dev"
           CERTORA_API_SUBDOMAIN="data-api-dev"
-          CERTORA_APP_SUBDOMAIN="dev-zeus"
+          CERTORA_APP_SUBDOMAIN="dev-app"
         elif [[ "${{ inputs.server }}" == "staging" || "${{ inputs.server }}" == "vaas-stg" ]]; then
           CERTORA_SUBDOMAIN="vaas-stg"
           CERTORA_API_SUBDOMAIN="data-api-stg"
-          CERTORA_APP_SUBDOMAIN="dev-zeus"
+          CERTORA_APP_SUBDOMAIN="dev-app"
         fi
 
         TARGET_URL="https://$CERTORA_SUBDOMAIN.certora.com"
