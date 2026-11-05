@@ -195,6 +195,7 @@ General inputs for:
 - `gh-review-jobs` - Which jobs to include in the GitHub review comment. Options are `all`, `failed`. Default is `all`.
 - `auto-rerun-timeouts` - Opt in to automatically re-run jobs that time out, using a per-ecosystem portfolio of variant prover configurations. The PR check stays pending while reruns are in flight; if any rerun succeeds, sibling reruns are cancelled and the group is marked successful. Default is `false`.
 - `job-name-as-message-id` - Compute the review comment `message-id` hash from `job-name` instead of the normalized `configurations` list (optional). Default is `false`. This affects comment replacement behavior when `replace-comments` is enabled.
+- `stable-status-name` - Name the commit status `certora-run/<configurations hash>` instead of `certora-run/<group ID>` (optional). If set to `true`, a re-run on the same commit updates the same status check, so an old failure does not stay on the PR. The hash follows `job-name-as-message-id`. If several calls run on one commit with the same configurations (for example, matrix legs that differ only in `solc-versions` or `server`), set a different `job-name` on each call and set `job-name-as-message-id` to `true`. Otherwise the calls share one status check, and each call overwrites the result of the other. Default is `false`.
 
 EVM specific inputs (`ecosystem: evm`):
 
