@@ -189,6 +189,7 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+          stable-status-name: "true"
 
   sui-verified-rules:
     runs-on: ubuntu-latest
