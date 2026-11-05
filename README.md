@@ -185,7 +185,7 @@ General inputs for:
 - `compilation-steps-only` - Compile the spec and the code without sending a
   verification request to the cloud (optional). Default is `false`.
 - `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default is `true`.
-- `certora-key` - API key for Certora Prover.
+- `certora-key` - API key for Certora Prover. With a Certora API key (69 characters), the commit status links to the jobs of the run in the app. The app is `app.certora.com` on production and `dev-app.certora.com` on staging and dev. With a legacy key, the commit status links to the legacy dashboard.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 - `use-hard-links` - Whether to use hard links when copying files (optional). If you expect to modify the files in the run directory during `certoraRun` execution, you should set this to `false`.
 - `use-workspace-dir` - Run all configurations directly in the working directory instead of copying it to an isolated temporary directory per configuration (optional). This can help with jobs failing due to out-of-memory errors (usually on Solana). If different configurations produce different build outputs, also enable `run-serially` to avoid concurrent runs racing on those outputs in the shared working directory. Default is `false`.
