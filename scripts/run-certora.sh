@@ -202,7 +202,12 @@ for i in "${!configs[@]}"; do
       MD_LINK="-"
     else
       STATUS="Submitted"
-      LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
+      # The CLI prints the report link on this line. The link can be a legacy link,
+      # a private link without anonymousKey, or an app link for an API key.
+      LINK=$(sed -nE 's/^Follow your job and see verification results at (https:\/\/[^[:space:]]+).*/\1/p' "${logs[i]}" | tail -n 1)
+      if [[ -z "$LINK" ]]; then
+        LINK=$(grep -oE "https://(vaas-dev|vaas-stg|prover)\.certora\.com/[^/]+/[0-9]+/[a-zA-Z0-9-]+/?.*\?.*anonymousKey=[a-zA-Z0-9-]+" "${logs[i]}" || true)
+      fi
       if [[ -z "$LINK" ]]; then
         ((jobs--)) || true
         MD_LINK="-"
