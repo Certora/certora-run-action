@@ -151,6 +151,7 @@ jobs:
           certora-key: ${{ secrets.CERTORAKEY_EXTERNAL }}
           gh-review: "failure"
           gh-review-jobs: "failed"
+          stable-status-name: "true"
 
   auto_timeouter_test:
     runs-on: ubuntu-latest
@@ -188,6 +189,7 @@ jobs:
           server: "staging"
           debug-level: 3
           certora-key: ${{ secrets.CERTORAKEY }}
+          stable-status-name: "true"
 
   sui-verified-rules:
     runs-on: ubuntu-latest
