@@ -254,8 +254,8 @@ You typically need:
 
 ## Certora API Integration
 
-You can also use this action to call Certora API commands such as cancelling or
-refreshing jobs in a group. To do so, you can create a workflow like this:
+You can also use this action to call Certora API commands such as cancelling
+the jobs in a group. To do so, you can create a workflow like this:
 
 ```yml
 name: Certora API
@@ -267,7 +267,6 @@ on:
         description: |
           The Certora API command to execute. Options are:
           - `cancel <group_id>`: Cancel all jobs in the specified group.
-          - `refresh <group_id>`: Refresh the status of all jobs in the specified group.
       server:
         required: true
         type: choice

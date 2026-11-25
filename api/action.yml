@@ -2,7 +2,7 @@
 name: Certora API
 
 description: |-
-  GitHub Action to call Certora API to cancel or refresh a job group.
+  GitHub Action to call Certora API to cancel a job group.
   This action requires that the Certora GitHub App is installed on the repository.
 
 branding:
@@ -14,7 +14,7 @@ inputs:
     required: true
     description: |-
       Command to send to the Certora API. It should be in the format
-      "<command> <group_id>", where <command> is either "cancel" or "refresh",
+      "<command> <group_id>", where <command> is "cancel",
       and <group_id> is the identifier of a job group to which the command applies.
   server:
     required: false
