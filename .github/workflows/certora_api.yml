@@ -8,7 +8,6 @@ on:
         description: |
           The Certora API command to execute. Options are:
           - `cancel <group_id>`: Cancel all jobs in the specified group.
-          - `refresh <group_id>`: Refresh the status of all jobs in the specified group.
       server:
         required: true
         type: choice
