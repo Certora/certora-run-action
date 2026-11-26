@@ -188,6 +188,17 @@ inputs:
       normalized configurations list. Default is `false`. If set to `true`,
       changing the job name creates a new comment thread when `replace-comments`
       is enabled.
+  stable-status-name:
+    required: false
+    default: "false"
+    description: |-
+      Whether to name the commit status after the configurations hash instead of
+      the random group ID. If set to `true`, a re-run on the same commit updates
+      the same status check instead of adding a new one. The hash follows
+      `job-name-as-message-id`. Default is `false`. If several calls run on one
+      commit with the same configurations, set a different `job-name` on each
+      call and set `job-name-as-message-id` to `true`. Otherwise the calls share
+      one status check.
 
 runs:
   using: "composite"
@@ -298,18 +309,25 @@ runs:
 
         CERTORA_SUBDOMAIN="prover"
         CERTORA_API_SUBDOMAIN="data-api"
+        CERTORA_APP_SUBDOMAIN="app"
         if [[ "${{ inputs.server }}" == "vaas-dev" || "${{ inputs.server }}" == "development" ]]; then
           CERTORA_SUBDOMAIN="vaas-dev"
           CERTORA_API_SUBDOMAIN="data-api-dev"
+          CERTORA_APP_SUBDOMAIN="dev-app"
         elif [[ "${{ inputs.server }}" == "staging" || "${{ inputs.server }}" == "vaas-stg" ]]; then
           CERTORA_SUBDOMAIN="vaas-stg"
           CERTORA_API_SUBDOMAIN="data-api-stg"
+          CERTORA_APP_SUBDOMAIN="dev-app"
         fi
 
         TARGET_URL="https://$CERTORA_SUBDOMAIN.certora.com"
 
-        # Set TARGET_URL path depending on repository visibility
-        if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+        # A Certora API key has 69 characters. A legacy key has 32 or 40 hex characters.
+        # An API key gets a link to the app job list for this group. A legacy key gets the legacy link.
+        # The pattern is the same as API_KEY_RE in the Certora CLI.
+        if [[ "$CERTORA_KEY_INPUT" =~ ^[A-Za-z0-9_-]{69}$ ]]; then
+          TARGET_URL="https://$CERTORA_APP_SUBDOMAIN.certora.com/orgs/default/jobs?group=$GROUP_ID&scope=everyone&range=all"
+        elif [[ "${{ github.event.repository.private }}" == "true" ]]; then
           # Private repository
           TARGET_URL="$TARGET_URL?text=$SHORT_COMMIT_SHA&allUsers=true&groupIds=$GROUP_ID"
         else
@@ -344,9 +362,10 @@ runs:
         CERTORA_RAW_CONFIGURATIONS: "${{ inputs.configurations }}"
         CERTORA_JOB_NAME_AS_MESSAGE_ID: "${{ inputs.job-name-as-message-id }}"
         CERTORA_JOB_NAME: "${{ inputs.job-name }}"
+        CERTORA_KEY_INPUT: "${{ inputs.certora-key }}"
 
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
       with:
         enable-cache: true
         cache-dependency-glob: .certora-cache-key
@@ -410,7 +429,7 @@ runs:
 
     - name: Install Java
       if: ${{ inputs.install-java == 'true' }}
-      uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
       with:
         java-version: "21"
         java-package: jre
@@ -454,7 +473,9 @@ runs:
         CERTORA_GH_REVIEW: "${{ inputs.gh-review }}"
         CERTORA_GH_REVIEW_JOBS: "${{ inputs.gh-review-jobs }}"
         CERTORA_AUTO_RERUN_TIMEOUTS: "${{ inputs.auto-rerun-timeouts }}"
+        CERTORA_STABLE_STATUS_NAME: "${{ inputs.stable-status-name }}"
 
+    # The backend builds the same status name (status_context in cert_data.gh_app).
     - name: Add GH Status
       if: ${{ steps.certora-run.outputs.total_jobs > 0}}
       shell: bash
@@ -469,11 +490,11 @@ runs:
             "state":"pending",
             "target_url":"${{ steps.setup-env.outputs.target_url }}",
             "description":"0/${{ steps.certora-run.outputs.total_jobs }} jobs finished.",
-            "context":"certora-run/${{ steps.setup-env.outputs.group_id }}"
+            "context":"certora-run/${{ inputs.stable-status-name == 'true' && steps.setup-env.outputs.certora_configurations_hash || steps.setup-env.outputs.group_id }}"
           }'
 
     - name: Upload Logs
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       id: upload-logs
       if: always()
       with:

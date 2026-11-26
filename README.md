@@ -185,7 +185,7 @@ General inputs for:
 - `compilation-steps-only` - Compile the spec and the code without sending a
   verification request to the cloud (optional). Default is `false`.
 - `comment-fail-only` - Add a report comment to the pr only when the job fails (optional). Default is `true`.
-- `certora-key` - API key for Certora Prover.
+- `certora-key` - API key for Certora Prover. With a Certora API key (69 characters), the commit status links to the jobs of the run in the app. The app is `app.certora.com` on production and `dev-app.certora.com` on staging and dev. With a legacy key, the commit status links to the legacy dashboard.
 - `working-directory` - Working directory to run the action in (optional). Default is the root of the repository.
 - `use-hard-links` - Whether to use hard links when copying files (optional). If you expect to modify the files in the run directory during `certoraRun` execution, you should set this to `false`.
 - `use-workspace-dir` - Run all configurations directly in the working directory instead of copying it to an isolated temporary directory per configuration (optional). This can help with jobs failing due to out-of-memory errors (usually on Solana). If different configurations produce different build outputs, also enable `run-serially` to avoid concurrent runs racing on those outputs in the shared working directory. Default is `false`.
@@ -195,6 +195,7 @@ General inputs for:
 - `gh-review-jobs` - Which jobs to include in the GitHub review comment. Options are `all`, `failed`. Default is `all`.
 - `auto-rerun-timeouts` - Opt in to automatically re-run jobs that time out, using a per-ecosystem portfolio of variant prover configurations. The PR check stays pending while reruns are in flight; if any rerun succeeds, sibling reruns are cancelled and the group is marked successful. Default is `false`.
 - `job-name-as-message-id` - Compute the review comment `message-id` hash from `job-name` instead of the normalized `configurations` list (optional). Default is `false`. This affects comment replacement behavior when `replace-comments` is enabled.
+- `stable-status-name` - Name the commit status `certora-run/<configurations hash>` instead of `certora-run/<group ID>` (optional). If set to `true`, a re-run on the same commit updates the same status check, so an old failure does not stay on the PR. The hash follows `job-name-as-message-id`. If several calls run on one commit with the same configurations (for example, matrix legs that differ only in `solc-versions` or `server`), set a different `job-name` on each call and set `job-name-as-message-id` to `true`. Otherwise the calls share one status check, and each call overwrites the result of the other. Default is `false`.
 
 EVM specific inputs (`ecosystem: evm`):
 
@@ -253,8 +254,8 @@ You typically need:
 
 ## Certora API Integration
 
-You can also use this action to call Certora API commands such as cancelling or
-refreshing jobs in a group. To do so, you can create a workflow like this:
+You can also use this action to call Certora API commands such as cancelling
+the jobs in a group. To do so, you can create a workflow like this:
 
 ```yml
 name: Certora API
@@ -266,7 +267,6 @@ on:
         description: |
           The Certora API command to execute. Options are:
           - `cancel <group_id>`: Cancel all jobs in the specified group.
-          - `refresh <group_id>`: Refresh the status of all jobs in the specified group.
       server:
         required: true
         type: choice
